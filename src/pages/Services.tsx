@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
+import BrandHeader from "@/components/layout/BrandHeader";
 
 export default function Services() {
   const [query, setQuery] = useState("");
@@ -16,7 +17,8 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-4 pt-4 safe-top">
+      <BrandHeader />
+      <div className="px-4">
         <h1 className="font-display text-xl font-bold text-foreground mb-3">All Services</h1>
         <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 mb-4">
           <Search size={18} className="text-muted-foreground" />
