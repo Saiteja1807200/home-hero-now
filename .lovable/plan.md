@@ -1,29 +1,53 @@
 
 
-# Fix: `has_role` Permission Denied Breaking All Queries
+# Add Provider Registration Flow
 
-## Root Cause
+## Current State
+- Users can sign up and get a `profiles` row automatically
+- There is **no UI or flow** for a user to become a service provider
+- Provider data currently exists only via direct database seeding
 
-Migration `20260305101552` contains:
+## What to Build
+
+### 1. "Become a Provider" page (`/become-provider`)
+- Form fields: bio, experience years, coverage area
+- Select which service categories they offer (multi-select from `service_categories`)
+- Set a base price per selected category
+- Submit creates a row in `service_providers` (status: `pending`) and rows in `provider_services`
+
+### 2. Profile page link
+- Add a "Become a Provider" button on the Profile page (only shown if user is not already a provider)
+- If already a provider, show "Provider Dashboard" link instead
+
+### 3. Database considerations
+- `service_providers` table already has an INSERT-compatible RLS gap: no INSERT policy exists for regular users
+- Need a new RLS policy: `"Users can create own provider profile" FOR INSERT WITH CHECK (auth.uid() = user_id)`
+- `provider_services` similarly needs an INSERT policy for the provider owner
+- Provider status starts as `pending` — admin approval required before they appear publicly
+
+### 4. Route and protection
+- Add `/become-provider` route wrapped in `ProtectedRoute` (must be logged in)
+- After submission, show confirmation that profile is pending review
+
+## Technical Details
+
+**New migration** (2 RLS policies):
 ```sql
-REVOKE EXECUTE ON FUNCTION public.has_role(uuid, app_role) FROM anon;
-REVOKE EXECUTE ON FUNCTION public.has_role(uuid, app_role) FROM authenticated;
+CREATE POLICY "Users can create own provider"
+ON service_providers FOR INSERT TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Providers can insert own services"
+ON provider_services FOR INSERT TO authenticated
+WITH CHECK (EXISTS (
+  SELECT 1 FROM service_providers
+  WHERE id = provider_services.provider_id
+  AND user_id = auth.uid()
+));
 ```
 
-But RLS policies like `"Admins can manage categories" FOR ALL USING (public.has_role(auth.uid(), 'admin'))` exist on `service_categories`. Postgres evaluates **all** SELECT policies (OR'd), so even though `"Anyone can read active categories"` exists, the admin `FOR ALL` policy also fires — and it calls `has_role`, which anon/authenticated can no longer execute. Result: 401 on every query.
+**New file**: `src/pages/BecomeProvider.tsx` — form with bio, experience, category/price selection, submit handler.
 
-## Fix (single migration)
-
-1. **Grant EXECUTE on `has_role` back to `anon` and `authenticated`** — RLS policies require it. The function is `SECURITY DEFINER` so it's safe; it only returns a boolean. To prevent direct RPC abuse, the function can be excluded from the PostgREST API by ensuring it's not exposed (it won't be callable via `.rpc()` if we don't want it to be, but the real risk is minimal since it only checks if a role exists).
-
-```sql
-GRANT EXECUTE ON FUNCTION public.has_role(uuid, app_role) TO anon;
-GRANT EXECUTE ON FUNCTION public.has_role(uuid, app_role) TO authenticated;
-```
-
-This single SQL statement in a new migration will fix all the 401 errors across `service_categories`, `provider_services`, `bookings`, and every other table whose RLS uses `has_role`.
-
-## Secondary Bug
-
-The `provider_services` request shows `category_id=eq.:categoryId` (literal string `:categoryId`). This means the `useProvidersByCategory` hook is passing the string `":categoryId"` instead of the actual UUID. Will check and fix the parameter passing in the hook.
+**Edit**: `src/pages/Profile.tsx` — add "Become a Provider" button.
+**Edit**: `src/App.tsx` — add route.
 
