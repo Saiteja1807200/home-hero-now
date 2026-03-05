@@ -1,23 +1,42 @@
 import { User, MapPin, Settings, LogOut, ChevronRight, Star, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest User";
+  const initials = displayName.charAt(0).toUpperCase();
+  const email = user?.email || "Sign in to manage your account";
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
   return (
     <div className="min-h-screen bg-background safe-top">
       {/* Header */}
       <div className="px-4 pt-6 pb-4">
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground font-display text-xl font-bold">
-            G
+            {initials}
           </div>
           <div>
-            <h1 className="font-display text-lg font-bold text-foreground">Guest User</h1>
-            <p className="text-sm text-muted-foreground">Sign in to manage your account</p>
+            <h1 className="font-display text-lg font-bold text-foreground">{displayName}</h1>
+            <p className="text-sm text-muted-foreground">{email}</p>
           </div>
         </div>
-        <Button className="mt-4 w-full bg-accent text-accent-foreground hover:bg-accent/90 font-semibold touch-target">
-          Sign In / Register
-        </Button>
+        {!user && (
+          <Button
+            className="mt-4 w-full bg-accent text-accent-foreground hover:bg-accent/90 font-semibold touch-target"
+            onClick={() => navigate("/auth")}
+          >
+            Sign In / Register
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
@@ -38,13 +57,14 @@ export default function Profile() {
       {/* Menu */}
       <div className="mt-2 px-4">
         {[
-          { icon: User, label: "Edit Profile" },
-          { icon: MapPin, label: "Saved Addresses" },
-          { icon: Settings, label: "Settings" },
-          { icon: LogOut, label: "Sign Out" },
-        ].map(({ icon: Icon, label }) => (
+          { icon: User, label: "Edit Profile", action: () => {} },
+          { icon: MapPin, label: "Saved Addresses", action: () => {} },
+          { icon: Settings, label: "Settings", action: () => {} },
+          ...(user ? [{ icon: LogOut, label: "Sign Out", action: handleSignOut }] : []),
+        ].map(({ icon: Icon, label, action }) => (
           <button
             key={label}
+            onClick={action}
             className="flex w-full items-center gap-3 py-3.5 border-b border-border touch-target"
           >
             <Icon size={18} className="text-muted-foreground" />
