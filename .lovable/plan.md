@@ -1,44 +1,29 @@
 
 
-# Plan: Seed Sample Data Into All Tables
+# Fix: `has_role` Permission Denied Breaking All Queries
 
-All 8 tables exist with correct schemas. Categories (14 rows) and profiles (5 rows) have data, but profiles lack names. All other tables are empty. Here's what we'll insert using the Supabase data insert tool.
+## Root Cause
 
-## Data Inserts (7 operations)
+Migration `20260305101552` contains:
+```sql
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, app_role) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, app_role) FROM authenticated;
+```
 
-### 1. Update 5 profiles with names
-| User | full_name |
-|---|---|
-| ravifixnow@gmail.com | Ravi Kumar |
-| srinufixnow@gmail.con | Srinu Reddy |
-| ganeshfixnow@gmail.com | Ganesh Babu |
-| sureshfixnow@gmail.com | Suresh Naidu |
-| rameshfixnow@gmail.com | Ramesh Yadav |
+But RLS policies like `"Admins can manage categories" FOR ALL USING (public.has_role(auth.uid(), 'admin'))` exist on `service_categories`. Postgres evaluates **all** SELECT policies (OR'd), so even though `"Anyone can read active categories"` exists, the admin `FOR ALL` policy also fires — and it calls `has_role`, which anon/authenticated can no longer execute. Result: 401 on every query.
 
-### 2. Insert 5 rows into `service_providers`
-Each user becomes an approved provider with a bio, experience, and `is_online = true`.
+## Fix (single migration)
 
-### 3. Insert 10 rows into `provider_services`
-Link each provider to 2 categories with prices:
-- Ravi → Electrician (₹299), AC Repair (₹399)
-- Srinu → Plumber (₹249), Water Purifier (₹349)
-- Ganesh → Carpenter (₹349), Painting (₹499)
-- Suresh → Home Cleaning (₹199), Pest Control (₹299)
-- Ramesh → TV Repair (₹299), Washing Machine (₹349)
+1. **Grant EXECUTE on `has_role` back to `anon` and `authenticated`** — RLS policies require it. The function is `SECURITY DEFINER` so it's safe; it only returns a boolean. To prevent direct RPC abuse, the function can be excluded from the PostgREST API by ensuring it's not exposed (it won't be callable via `.rpc()` if we don't want it to be, but the real risk is minimal since it only checks if a role exists).
 
-### 4. Insert 2 rows into `addresses`
-Two sample addresses for Ravi's user account.
+```sql
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, app_role) TO anon;
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, app_role) TO authenticated;
+```
 
-### 5. Insert 2 rows into `bookings`
-- Booking 1: Ravi books Srinu for Plumber service (status: completed)
-- Booking 2: Ravi books Ganesh for Carpenter service (status: requested)
+This single SQL statement in a new migration will fix all the 401 errors across `service_categories`, `provider_services`, `bookings`, and every other table whose RLS uses `has_role`.
 
-### 6. Insert 2 rows into `reviews`
-A review from Ravi for the completed booking with Srinu.
+## Secondary Bug
 
-### 7. Insert 2 rows into `user_roles`
-- Ravi → admin
-- Srinu → user
-
-No schema/migration changes needed. All inserts use existing tables and columns.
+The `provider_services` request shows `category_id=eq.:categoryId` (literal string `:categoryId`). This means the `useProvidersByCategory` hook is passing the string `":categoryId"` instead of the actual UUID. Will check and fix the parameter passing in the hook.
 
