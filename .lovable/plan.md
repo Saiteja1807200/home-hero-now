@@ -1,25 +1,33 @@
-
-
-# Replace Hardcoded Home Page Data with Real Supabase Queries
+# UI Branding Update — Add Logo + "fixitnow" Header
 
 ## Changes
 
-### 1. Active Booking Card — query-driven, conditional render
-- In `Index.tsx`, use the `AuthContext` to get the current user
-- Query `bookings` table for the logged-in user where `status IN ('accepted', 'on_the_way', 'in_progress')`, limit 1
-- Join with `service_categories` (via `provider_services.category_id`) for the service name, and `profiles` (via `service_providers.user_id`) for the provider name
-- Only render `ActiveBookingCard` if a booking exists; hide entirely otherwise
-- If user is not logged in, skip the query and hide the card
+### 1. Copy logo to project
 
-### 2. Recommended Providers — fetch from Supabase
-- Replace `MOCK_PROVIDERS` array with a query to `public_providers` (approved, online providers)
-- Join with `profiles` for name/avatar and `provider_services` + `service_categories` for service name
-- Compute review stats from `reviews` table (average rating, count as "jobs")
-- Distance/ETA will remain placeholder strings since there's no geolocation yet
-- Show skeleton loading state while fetching
-- Show nothing or empty state if no providers exist
+- Copy uploaded logo to `src/assets/logo.png`
 
-### Files to edit
-- **`src/pages/Index.tsx`** — add auth check + booking query, conditionally render `ActiveBookingCard`
-- **`src/components/home/RecommendedProviders.tsx`** — replace mock data with Supabase query using `useQuery`
+### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
 
+- Displays the logo image (32–40px height) + "FixItNow" text beside it
+- Centered horizontally in the header area
+- Used consistently across Home, Services, Bookings, Messages, and Profile screens
+- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
+
+### 3. Add `BrandHeader` to all main screens
+
+- `**Index.tsx**` — add above `LocationBar`
+- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
+- `**Bookings.tsx**` — add at top
+- `**Messages.tsx**` — add at top
+- `**Profile.tsx**` — add at top
+
+### 4. PWA icons
+
+- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
+- Update favicon reference
+
+### Files
+
+- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
+- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
+- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
