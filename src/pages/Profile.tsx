@@ -1,11 +1,27 @@
-import { User, MapPin, Settings, LogOut, ChevronRight, Star, CalendarDays } from "lucide-react";
+import { User, MapPin, Settings, LogOut, ChevronRight, Star, CalendarDays, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Check if user is already a provider
+  const { data: providerStatus } = useQuery({
+    queryKey: ["my-provider-status", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("service_providers")
+        .select("id, status")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest User";
   const initials = displayName.charAt(0).toUpperCase();
@@ -59,6 +75,9 @@ export default function Profile() {
         {[
           { icon: User, label: "Edit Profile", action: () => {} },
           { icon: MapPin, label: "Saved Addresses", action: () => {} },
+          ...(!providerStatus
+            ? [{ icon: Briefcase, label: "Become a Provider", action: () => navigate("/become-provider") }]
+            : [{ icon: Briefcase, label: `Provider Dashboard (${providerStatus.status})`, action: () => {} }]),
           { icon: Settings, label: "Settings", action: () => {} },
           ...(user ? [{ icon: LogOut, label: "Sign Out", action: handleSignOut }] : []),
         ].map(({ icon: Icon, label, action }) => (
