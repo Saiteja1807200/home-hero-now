@@ -1,53 +1,25 @@
 
 
-# Add Provider Registration Flow
+# Replace Hardcoded Home Page Data with Real Supabase Queries
 
-## Current State
-- Users can sign up and get a `profiles` row automatically
-- There is **no UI or flow** for a user to become a service provider
-- Provider data currently exists only via direct database seeding
+## Changes
 
-## What to Build
+### 1. Active Booking Card — query-driven, conditional render
+- In `Index.tsx`, use the `AuthContext` to get the current user
+- Query `bookings` table for the logged-in user where `status IN ('accepted', 'on_the_way', 'in_progress')`, limit 1
+- Join with `service_categories` (via `provider_services.category_id`) for the service name, and `profiles` (via `service_providers.user_id`) for the provider name
+- Only render `ActiveBookingCard` if a booking exists; hide entirely otherwise
+- If user is not logged in, skip the query and hide the card
 
-### 1. "Become a Provider" page (`/become-provider`)
-- Form fields: bio, experience years, coverage area
-- Select which service categories they offer (multi-select from `service_categories`)
-- Set a base price per selected category
-- Submit creates a row in `service_providers` (status: `pending`) and rows in `provider_services`
+### 2. Recommended Providers — fetch from Supabase
+- Replace `MOCK_PROVIDERS` array with a query to `public_providers` (approved, online providers)
+- Join with `profiles` for name/avatar and `provider_services` + `service_categories` for service name
+- Compute review stats from `reviews` table (average rating, count as "jobs")
+- Distance/ETA will remain placeholder strings since there's no geolocation yet
+- Show skeleton loading state while fetching
+- Show nothing or empty state if no providers exist
 
-### 2. Profile page link
-- Add a "Become a Provider" button on the Profile page (only shown if user is not already a provider)
-- If already a provider, show "Provider Dashboard" link instead
-
-### 3. Database considerations
-- `service_providers` table already has an INSERT-compatible RLS gap: no INSERT policy exists for regular users
-- Need a new RLS policy: `"Users can create own provider profile" FOR INSERT WITH CHECK (auth.uid() = user_id)`
-- `provider_services` similarly needs an INSERT policy for the provider owner
-- Provider status starts as `pending` — admin approval required before they appear publicly
-
-### 4. Route and protection
-- Add `/become-provider` route wrapped in `ProtectedRoute` (must be logged in)
-- After submission, show confirmation that profile is pending review
-
-## Technical Details
-
-**New migration** (2 RLS policies):
-```sql
-CREATE POLICY "Users can create own provider"
-ON service_providers FOR INSERT TO authenticated
-WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Providers can insert own services"
-ON provider_services FOR INSERT TO authenticated
-WITH CHECK (EXISTS (
-  SELECT 1 FROM service_providers
-  WHERE id = provider_services.provider_id
-  AND user_id = auth.uid()
-));
-```
-
-**New file**: `src/pages/BecomeProvider.tsx` — form with bio, experience, category/price selection, submit handler.
-
-**Edit**: `src/pages/Profile.tsx` — add "Become a Provider" button.
-**Edit**: `src/App.tsx` — add route.
+### Files to edit
+- **`src/pages/Index.tsx`** — add auth check + booking query, conditionally render `ActiveBookingCard`
+- **`src/components/home/RecommendedProviders.tsx`** — replace mock data with Supabase query using `useQuery`
 
