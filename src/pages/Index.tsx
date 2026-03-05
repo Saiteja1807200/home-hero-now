@@ -3,6 +3,7 @@ import SearchBar from "@/components/home/SearchBar";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import RecommendedProviders from "@/components/home/RecommendedProviders";
 import ActiveBookingCard from "@/components/home/ActiveBookingCard";
+import BrandHeader from "@/components/layout/BrandHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,6 +80,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <BrandHeader />
       <LocationBar />
       <SearchBar />
       <CategoryGrid />

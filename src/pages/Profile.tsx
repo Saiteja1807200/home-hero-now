@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import BrandHeader from "@/components/layout/BrandHeader";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
@@ -33,9 +34,10 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-background safe-top">
+    <div className="min-h-screen bg-background">
+      <BrandHeader />
       {/* Header */}
-      <div className="px-4 pt-6 pb-4">
+      <div className="px-4 pb-4">
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground font-display text-xl font-bold">
             {initials}
