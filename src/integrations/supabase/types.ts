@@ -105,6 +105,13 @@ export type Database = {
             foreignKeyName: "bookings_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
+            referencedRelation: "public_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
             referencedRelation: "service_providers"
             referencedColumns: ["id"]
           },
@@ -175,6 +182,13 @@ export type Database = {
             foreignKeyName: "provider_services_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
+            referencedRelation: "public_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
             referencedRelation: "service_providers"
             referencedColumns: ["id"]
           },
@@ -223,6 +237,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: true
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "public_providers"
             referencedColumns: ["id"]
           },
           {
@@ -355,7 +376,50 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_providers: {
+        Row: {
+          bio: string | null
+          coverage_area_km: number | null
+          created_at: string | null
+          experience_years: number | null
+          id: string | null
+          is_online: boolean | null
+          status: Database["public"]["Enums"]["provider_status"] | null
+          user_id: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          bio?: string | null
+          coverage_area_km?: number | null
+          created_at?: string | null
+          experience_years?: number | null
+          id?: string | null
+          is_online?: boolean | null
+          status?: Database["public"]["Enums"]["provider_status"] | null
+          user_id?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          bio?: string | null
+          coverage_area_km?: number | null
+          created_at?: string | null
+          experience_years?: number | null
+          id?: string | null
+          is_online?: boolean | null
+          status?: Database["public"]["Enums"]["provider_status"] | null
+          user_id?: string | null
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_providers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
