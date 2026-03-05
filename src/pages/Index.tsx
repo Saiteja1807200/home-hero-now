@@ -1,12 +1,22 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import LocationBar from "@/components/home/LocationBar";
+import SearchBar from "@/components/home/SearchBar";
+import CategoryGrid from "@/components/home/CategoryGrid";
+import RecommendedProviders from "@/components/home/RecommendedProviders";
+import ActiveBookingCard from "@/components/home/ActiveBookingCard";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <LocationBar />
+      <SearchBar />
+      <CategoryGrid />
+      <ActiveBookingCard
+        providerName="Rajesh Kumar"
+        service="AC Servicing"
+        status="on_the_way"
+        time="Today, 2:30 PM"
+      />
+      <RecommendedProviders />
     </div>
   );
 };
