@@ -1,83 +1,75 @@
-- FixNow MVP — Refined Implementation Plan
 
-### Phase 1: Foundation & Design System
 
-- **PWA setup** with manifest, service worker, offline support
-- **Custom design system** — NOT generic template UI:
-  - Primary: deep teal (`hsl(185, 64%, 25%)`) for trust/reliability
-  - Accent: bright orange (`hsl(25, 95%, 53%)`) for CTAs (Book Now, Confirm)
-  - Modern typography, consistent spacing scale, large touch targets (min 48px)
-  - Custom service category icon system using Lucide icons with color-coded backgrounds
-  - Subtle micro-interactions: button press scale, fade-in cards, skeleton loaders, booking confirmation animation
-- **Mobile-first layout** with bottom tab navigation (Home, Services, Bookings, Messages, Profile)
+# Phase 2: Supabase Backend & Auth — Implementation Plan
 
-### Phase 2: Supabase Backend & Auth
+## Overview
+Set up the complete database schema, authentication, RLS policies, storage buckets, and auth UI for the FixNow platform.
 
-- **Connect external Supabase project**
-- **Auth**: Email/password for MVP; `profiles` table includes `phone` field for future OTP support
-- **User roles table** (separate from profiles): Customer, Provider, Admin with RLS + `has_role()` security definer function
-- **Core database tables**:
-  - `profiles` (name, email, phone, avatar_url)
-  - `addresses` (street, city, lat, lng coordinates)
-  - `service_categories` (name, icon, color, description) — seed 14 categories
-  - `service_providers` (user_id, experience_years, verified, is_online, coverage_area, commission_rate)
-  - `provider_services` (provider_id, category_id, base_price)
-  - `bookings` (customer_id, provider_id, service_id, status enum: requested→accepted→on_the_way→in_progress→completed→cancelled, scheduled_date, address_id)
-  - `reviews` (booking_id, quality, punctuality, professionalism, cleanliness, comment)
-  - `system_logs` (event_type, user_id, details, timestamp)
-- **Supabase Storage** buckets: profile-photos, portfolio-images, verification-documents
-- **RLS policies** on all tables
+---
 
-### Phase 3: Customer Experience
+## Step 1: Database Schema Migration
 
-- **Home screen** (distinctive, not template-like):
-  - Location indicator bar at top
-  - Large search bar with placeholder "What service do you need?"
-  - Service category grid: rounded icon cards with category color accents
-  - "Recommended Providers" horizontal scroll section
-  - Active/upcoming bookings card
-- **Service discovery**:
-  - Category → provider list with filter controls (rating, distance, availability)
-  - Dynamic search results
-  - Provider cards: photo, rating stars, jobs completed, distance, ETA, prominent orange "Book Now" button
-- **Provider profile page**: verification badge, portfolio gallery, reviews list
-- **Step-based booking flow** with progress indicator:
-  1. Select service category
-  2. Choose provider
-  3. Pick date & time (calendar)
-  4. Review & confirm details
-  5. Payment method (placeholder)
-- **Booking management**: view history, cancel, reschedule
-- **Error handling**: clear feedback for network issues, duplicate bookings, provider cancellations
-- **Profile**: edit info, manage addresses (with lat/lng)
+Create all core tables in a single migration:
 
-### Phase 4: Provider Dashboard
+**Enums:**
+- `app_role` — admin, moderator, user (for role system)
+- `booking_status` — requested, accepted, on_the_way, in_progress, completed, cancelled
+- `provider_status` — pending, approved, rejected
 
-- Registration: profile setup, document upload (to Supabase Storage), select categories, define coverage area
-- **Online/Offline toggle** — only online providers appear in customer search
-- Dashboard: incoming requests (accept/reject), current jobs with status progression, earnings summary
-- Schedule management, mark jobs complete
-- Status updates sync across all interfaces via Supabase realtime
+**Tables:**
+1. `profiles` — id (FK auth.users), full_name, email, phone, avatar_url, created_at
+2. `user_roles` — id, user_id (FK auth.users), role (app_role)
+3. `addresses` — id, user_id, label, street, city, state, pincode, lat, lng
+4. `service_categories` — id, name, icon_name, color, description, is_active
+5. `service_providers` — id, user_id (FK profiles), experience_years, bio, verified, is_online, coverage_area_km, commission_rate, status (provider_status)
+6. `provider_services` — id, provider_id (FK service_providers), category_id (FK service_categories), base_price
+7. `bookings` — id, customer_id, provider_id, service_id (FK provider_services), status (booking_status), scheduled_date, scheduled_time, address_id, notes, created_at, updated_at
+8. `reviews` — id, booking_id (FK bookings), customer_id, provider_id, quality, punctuality, professionalism, cleanliness, comment, created_at
+9. `system_logs` — id, event_type, user_id, details (jsonb), created_at
 
-### Phase 5: Admin Dashboard
+**Functions & Triggers:**
+- `has_role(uuid, app_role)` — security definer function for RLS
+- `handle_new_user()` trigger — auto-create profile on signup
 
-- Sidebar navigation layout
-- **Provider verification**: review documents from storage, approve/reject
-- **Service category management**: CRUD with icons
-- **Booking monitoring**: filter by status/date/category, full lifecycle view
-- **Commission configuration**: set percentage per category (inactive in MVP)
-- **System logs viewer**: auth events, booking events, provider actions, errors
-- **Analytics**: daily bookings chart, revenue, popular services, top providers (using Recharts)
+## Step 2: RLS Policies
 
-### Phase 6: Ratings & Reviews
+- **profiles**: Users read/update own; admins read all
+- **user_roles**: Only admins manage; users read own
+- **addresses**: Users CRUD own addresses
+- **service_categories**: Public read; admin write
+- **service_providers**: Public read (approved only); owner update own; admin manage all
+- **provider_services**: Public read; provider manage own
+- **bookings**: Customer/provider read own; admin read all; customer create
+- **reviews**: Public read; customer create (own bookings only)
+- **system_logs**: Admin read only
 
-- Post-completion rating: Quality, Punctuality, Professionalism, Cleanliness (star ratings)
-- Only verified completed bookings can review
-- Reviews displayed on provider profiles with averages
+## Step 3: Seed Data
 
-### Cross-Cutting Concerns
+Insert 14 service categories (Electrician, Plumber, AC Repair, etc.) matching the existing `constants.ts` definitions.
 
-- Booking status lifecycle synced across all roles via Supabase realtime subscriptions
-- System event logging for all critical actions
+## Step 4: Storage Buckets
 
-## Architecture prepared for future: caching, CDN, background jobs, OTP auth — no restructuring needed
+Create 3 buckets: `profile-photos`, `portfolio-images`, `verification-documents` with appropriate RLS.
+
+## Step 5: Authentication UI
+
+- Create `AuthPage` with email/password sign-up and sign-in (tabbed interface)
+- Create `AuthProvider` context for session management using `onAuthStateChange`
+- Create `ProtectedRoute` wrapper
+- Add `/auth` route
+- Profile page: show logged-in user info, working sign-out
+
+## Step 6: Update Frontend
+
+- Wire up the Supabase types (auto-generated after migration)
+- Update profile page to show real user data
+- Prepare hooks for data fetching (categories, providers, bookings)
+
+---
+
+## Technical Notes
+- All user_id columns are non-nullable where RLS depends on them
+- Phone field included on profiles for future OTP support
+- The `has_role()` security definer function prevents recursive RLS issues
+- Provider status enum allows admin verification workflow
+
