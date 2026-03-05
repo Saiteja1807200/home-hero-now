@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import MobileLayout from "@/components/layout/MobileLayout";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
+import ServiceDetail from "./pages/ServiceDetail";
 import Bookings from "./pages/Bookings";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
@@ -27,7 +28,7 @@ const App = () => (
             <Route element={<MobileLayout />}>
               <Route path="/" element={<Index />} />
               <Route path="/services" element={<Services />} />
-              <Route path="/services/:categoryId" element={<Services />} />
+              <Route path="/services/:categoryId" element={<ServiceDetail />} />
               <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
               <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
