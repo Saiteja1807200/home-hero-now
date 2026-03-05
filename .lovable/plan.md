@@ -1,26 +1,56 @@
 
 
-# Fix: Category Tap Does Nothing Visible
+# Plan: Make the App Production-Ready
 
-## Problem
-Tapping a category navigates to `/services/:categoryId`, but the `Services` component ignores the `categoryId` route param. The page looks identical whether you're on `/services` or `/services/electrician` — so it feels like nothing happened.
+Here's what needs to happen to turn the current UI shells into a working application, organized by priority.
 
-## Solution
-Create a new `ServiceDetail` page that shows when a specific category is tapped. This page will:
+## Phase 1: Wire Up Live Data (Categories & Providers)
 
-1. **Read `categoryId` from URL params** and look up the category info (name, icon, color) from the seeded `service_categories` table or the local constants
-2. **Display the category header** with icon, name, and a back button
-3. **Show a "providers coming soon" placeholder** (since no real providers exist yet) — or query `public_providers` view joined with `provider_services` to list any matching providers
-4. **Include a search/filter area** for future use
+**1a. Fetch service categories from Supabase instead of hardcoded constants**
+- Create a custom hook `useServiceCategories` that queries the `service_categories` table
+- Map the `icon_name` field from the DB to actual Lucide icon components (keep a lookup map in constants)
+- Update `CategoryGrid`, `Services`, and `ServiceDetail` to use the hook instead of `SERVICE_CATEGORIES`
 
-## Files to Create/Edit
+**1b. Show real providers on ServiceDetail page**
+- Query `public_providers` view joined with `provider_services` and `profiles` (via `profiles_public` or own profile) filtered by `category_id`
+- Display provider cards with name, bio, experience, verified badge
+- Keep the empty state when no providers match
 
-- **Create `src/pages/ServiceDetail.tsx`** — New page component that:
-  - Uses `useParams()` to get `categoryId`
-  - Matches it against `SERVICE_CATEGORIES` constants for icon/color
-  - Shows category name, back button, and a list of providers (empty state for now)
-  
-- **Edit `src/App.tsx`** — Point `/services/:categoryId` to the new `ServiceDetail` component instead of `Services`
+## Phase 2: Booking Flow
 
-This keeps `/services` as the "all categories" grid, and `/services/electrician` as the detail view for that category.
+**2a. Provider detail page** (`/providers/:providerId`)
+- Show provider info, services offered with prices, reviews
+- "Book Now" button opens a booking sheet/dialog
+
+**2b. Booking creation**
+- Date/time picker, address selection (from user's saved addresses or add new)
+- Insert into `bookings` table
+- Toast confirmation
+
+**2c. Live Bookings page**
+- Query `bookings` table for logged-in user, join with provider/service info
+- Show status badges, scheduled date/time
+- Replace the hardcoded `ActiveBookingCard` on Index with real active booking query
+
+## Phase 3: Profile & Addresses
+
+- **Editable profile**: Update `full_name`, `phone`, upload avatar to `profile-photos` bucket
+- **Saved addresses**: CRUD addresses from the Profile page, use them during booking
+
+## Phase 4: Publish Readiness
+
+- **Remove mock data**: Delete hardcoded `MOCK_PROVIDERS` in `RecommendedProviders` and the static `ActiveBookingCard` props on Index
+- **Password reset flow**: Add forgot password link on Auth page + `/reset-password` route
+- **Error boundaries**: Add a top-level error boundary for graceful error handling
+- **PWA metadata**: Verify `manifest.json` has correct app name, icons, theme color
+- **Publish**: Click the Publish button in the top-right corner of the Lovable editor
+
+## Recommended Build Order
+
+1. Wire categories from Supabase (Phase 1a) — makes the app feel "real" immediately
+2. Build the booking flow (Phase 2) — core functionality
+3. Profile editing (Phase 3) — user engagement
+4. Cleanup & publish (Phase 4)
+
+Each phase is a separate set of prompts you can ask me to build. I'd recommend starting with **Phase 1a: "Wire up the CategoryGrid and Services pages to fetch categories from the Supabase service_categories table instead of hardcoded constants."**
 
