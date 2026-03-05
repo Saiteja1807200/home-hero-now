@@ -13,6 +13,7 @@ import Bookings from "./pages/Bookings";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
+import BecomeProvider from "./pages/BecomeProvider";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
               <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/become-provider" element={<ProtectedRoute><BecomeProvider /></ProtectedRoute>} />
             </Route>
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
