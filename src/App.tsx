@@ -18,6 +18,7 @@ import SavedAddresses from "./pages/SavedAddresses";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import BecomeProvider from "./pages/BecomeProvider";
+import ProviderDashboard from "./pages/ProviderDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/saved-addresses" element={<ProtectedRoute><SavedAddresses /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/become-provider" element={<ProtectedRoute><BecomeProvider /></ProtectedRoute>} />
+                <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboard /></ProtectedRoute>} />
               </Route>
               <Route path="/auth" element={<Auth />} />
               <Route path="*" element={<NotFound />} />
