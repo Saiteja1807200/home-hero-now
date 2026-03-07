@@ -39,6 +39,24 @@ interface BookingRow {
 
 export default function Bookings() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const handleCancel = async (bookingId: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status: "cancelled" as BookingStatus })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast.error("Failed to cancel booking");
+      console.error(error);
+      return;
+    }
+
+    toast.success("Booking cancelled");
+    queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
+    queryClient.invalidateQueries({ queryKey: ["active-booking"] });
+  };
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ["my-bookings", user?.id],
