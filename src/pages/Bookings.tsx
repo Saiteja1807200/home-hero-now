@@ -1,10 +1,23 @@
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import BrandHeader from "@/components/layout/BrandHeader";
 import {
   BOOKING_STATUS_LABELS,
@@ -26,6 +39,24 @@ interface BookingRow {
 
 export default function Bookings() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const handleCancel = async (bookingId: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status: "cancelled" as BookingStatus })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast.error("Failed to cancel booking");
+      console.error(error);
+      return;
+    }
+
+    toast.success("Booking cancelled");
+    queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
+    queryClient.invalidateQueries({ queryKey: ["active-booking"] });
+  };
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ["my-bookings", user?.id],
@@ -137,6 +168,38 @@ export default function Bookings() {
                     ₹{b.base_price}
                   </span>
                 </div>
+                {b.status === "requested" && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3 w-full text-destructive border-destructive/30 hover:bg-destructive/10"
+                      >
+                        <X size={14} className="mr-1" />
+                        Cancel Booking
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will cancel your {b.service_name} booking with {b.provider_name} on{" "}
+                          {format(new Date(b.scheduled_date), "MMM d, yyyy")}. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Keep Booking</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleCancel(b.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Yes, Cancel
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </div>
             ))}
           </div>
