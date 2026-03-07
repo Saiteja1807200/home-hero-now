@@ -330,6 +330,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "service_providers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "public_provider_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       system_logs: {
@@ -376,6 +383,14 @@ export type Database = {
       }
     }
     Views: {
+      public_provider_profiles: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          id: string | null
+        }
+        Relationships: []
+      }
       public_providers: {
         Row: {
           bio: string | null
@@ -416,6 +431,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_providers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "public_provider_profiles"
             referencedColumns: ["id"]
           },
         ]
