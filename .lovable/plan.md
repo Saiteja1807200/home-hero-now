@@ -1,33 +1,45 @@
-# UI Branding Update — Add Logo + "fixitnow" Header
 
-## Changes
 
-### 1. Copy logo to project
+## Improve Provider Registration Form
 
-- Copy uploaded logo to `src/assets/logo.png`
+### What Changes
 
-### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
+The existing `BecomeProvider.tsx` form will be enhanced with auto-filled profile fields, simplified to a single primary category dropdown, and improved validation. No database schema changes needed -- the existing `service_providers` + `provider_services` tables already support everything.
 
-- Displays the logo image (32–40px height) + "FixItNow" text beside it
-- Centered horizontally in the header area
-- Used consistently across Home, Services, Bookings, Messages, and Profile screens
-- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
+### Important Note on "Role Update"
+The user requested updating a `role` column on `profiles`, but the project correctly uses a separate `user_roles` table per security best practices. The `app_role` enum only has `admin`, `moderator`, `user` -- there is no `provider` value. Since provider status is already tracked via the `service_providers` table (and the Profile page already checks for it), no role table changes are needed. The existing `providerStatus` check on the Profile page already handles showing/hiding the "Become a Provider" option.
 
-### 3. Add `BrandHeader` to all main screens
+---
 
-- `**Index.tsx**` — add above `LocationBar`
-- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
-- `**Bookings.tsx**` — add at top
-- `**Messages.tsx**` — add at top
-- `**Profile.tsx**` — add at top
+### Changes to `src/pages/BecomeProvider.tsx`
 
-### 4. PWA icons
+1. **Auto-fill fields**: Fetch the user's profile (`full_name`, `phone`, `avatar_url`) on mount and pre-populate form fields for Full Name and Phone Number (editable).
 
-- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
-- Update favicon reference
+2. **Simplify category selection**: Replace multi-category checkbox grid with a single dropdown (`Select` component) for "Primary Service Category".
 
-### Files
+3. **Add Base Price field**: Single number input for base service price (replaces per-category pricing).
 
-- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
-- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
-- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
+4. **Update validation schema**:
+   - `experience_years`: min changed from 0 to 1
+   - `base_price`: required, must be > 0
+   - `full_name`: required string
+   - `phone`: required string
+   - Remove `coverage_area_km` (keep coverage_area dropdown)
+
+5. **Optional photo upload**: Add `AvatarUpload` component (already exists at `src/components/profile/AvatarUpload.tsx`) at top of form. On upload, update the profile's `avatar_url`.
+
+6. **Duplicate check**: Before showing the form, check if `service_providers` record exists for user. If yes, show "You are already registered as a provider" message with a back button (instead of the form).
+
+7. **Success message**: Change to "You are now registered as a service provider." and auto-redirect to `/profile`.
+
+8. **Invalidate queries**: After successful submission, invalidate `my-provider-status` so Profile page updates immediately.
+
+### Changes to `src/pages/Profile.tsx`
+
+- Already handles provider status display correctly. No changes needed -- `providerStatus` query already shows "Provider Dashboard" when a record exists and hides "Become a Provider".
+
+### Files Changed
+| File | Change |
+|------|--------|
+| `src/pages/BecomeProvider.tsx` | Rewrite form with auto-fill, single category dropdown, base price, avatar upload, duplicate guard, improved validation |
+
