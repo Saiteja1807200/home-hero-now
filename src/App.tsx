@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import BecomeProvider from "./pages/BecomeProvider";
 import ProviderDashboard from "./pages/ProviderDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
