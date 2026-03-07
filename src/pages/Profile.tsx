@@ -1,4 +1,4 @@
-import { User, MapPin, Settings, LogOut, ChevronRight, Star, CalendarDays, Briefcase } from "lucide-react";
+import { User, MapPin, Settings, LogOut, ChevronRight, Star, CalendarDays, Briefcase, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +34,15 @@ export default function Profile() {
         .eq("user_id", user!.id)
         .maybeSingle();
       return data;
+    },
+    enabled: !!user,
+  });
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.rpc("has_role", { _user_id: user!.id, _role: "admin" });
+      return data === true;
     },
     enabled: !!user,
   });
@@ -116,6 +125,7 @@ export default function Profile() {
           ...(!providerStatus
             ? [{ icon: Briefcase, label: "Become a Provider", action: () => navigate("/become-provider") }]
             : [{ icon: Briefcase, label: "Provider Dashboard", action: () => navigate("/provider-dashboard") }]),
+          ...(isAdmin ? [{ icon: ShieldCheck, label: "Admin Panel", action: () => navigate("/admin") }] : []),
           { icon: Settings, label: "Settings", action: () => navigate("/settings") },
           ...(user ? [{ icon: LogOut, label: "Sign Out", action: handleSignOut }] : []),
         ].map(({ icon: Icon, label, action }) => (

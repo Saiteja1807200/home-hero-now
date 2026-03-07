@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import BecomeProvider from "./pages/BecomeProvider";
 import ProviderDashboard from "./pages/ProviderDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/become-provider" element={<ProtectedRoute><BecomeProvider /></ProtectedRoute>} />
                 <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboard /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               </Route>
               <Route path="/auth" element={<Auth />} />
               <Route path="*" element={<NotFound />} />
