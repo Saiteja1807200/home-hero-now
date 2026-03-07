@@ -87,7 +87,7 @@ export default function BecomeProvider() {
           coverage_area_km: values.coverage_area_km,
           coverage_area: coverageArea,
           city: "Mancherial",
-        })
+        } as any)
         .select("id")
         .single();
 

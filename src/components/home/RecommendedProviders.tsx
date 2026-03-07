@@ -38,8 +38,8 @@ export default function RecommendedProviders({ selectedLocation }: Props) {
         .select("id, user_id, verified, is_online, coverage_area")
         .eq("status", "approved")
         .eq("is_online", true)
-        .eq("coverage_area", selectedLocation)
-        .limit(10);
+        .eq("coverage_area" as string, selectedLocation)
+        .limit(10) as { data: Array<{ id: string | null; user_id: string | null; verified: boolean | null; is_online: boolean | null; coverage_area: string | null }> | null; error: any };
 
       if (error) throw error;
       if (!providerRows || providerRows.length === 0) return [];
