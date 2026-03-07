@@ -125,6 +125,7 @@ export default function Profile() {
           ...(!providerStatus
             ? [{ icon: Briefcase, label: "Become a Provider", action: () => navigate("/become-provider") }]
             : [{ icon: Briefcase, label: "Provider Dashboard", action: () => navigate("/provider-dashboard") }]),
+          ...(isAdmin ? [{ icon: ShieldCheck, label: "Admin Panel", action: () => navigate("/admin") }] : []),
           { icon: Settings, label: "Settings", action: () => navigate("/settings") },
           ...(user ? [{ icon: LogOut, label: "Sign Out", action: handleSignOut }] : []),
         ].map(({ icon: Icon, label, action }) => (
