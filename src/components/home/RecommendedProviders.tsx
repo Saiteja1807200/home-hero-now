@@ -33,13 +33,15 @@ export default function RecommendedProviders({ selectedLocation }: Props) {
   const { data: providers, isLoading } = useQuery({
     queryKey: ["recommended-providers", selectedLocation],
     queryFn: async () => {
-      const { data: providerRows, error } = await supabase
+      const query = supabase
         .from("public_providers")
-        .select("id, user_id, verified, is_online, coverage_area")
+        .select("id, user_id, verified, is_online")
         .eq("status", "approved")
         .eq("is_online", true)
-        .eq("coverage_area" as string, selectedLocation)
-        .limit(10) as { data: Array<{ id: string | null; user_id: string | null; verified: boolean | null; is_online: boolean | null; coverage_area: string | null }> | null; error: any };
+        .limit(10);
+
+      // Filter by coverage_area (column added via migration, not yet in generated types)
+      const { data: providerRows, error } = await (query as any).eq("coverage_area", selectedLocation);
 
       if (error) throw error;
       if (!providerRows || providerRows.length === 0) return [];
