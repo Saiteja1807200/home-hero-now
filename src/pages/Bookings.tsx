@@ -168,6 +168,38 @@ export default function Bookings() {
                     ₹{b.base_price}
                   </span>
                 </div>
+                {b.status === "requested" && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3 w-full text-destructive border-destructive/30 hover:bg-destructive/10"
+                      >
+                        <X size={14} className="mr-1" />
+                        Cancel Booking
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will cancel your {b.service_name} booking with {b.provider_name} on{" "}
+                          {format(new Date(b.scheduled_date), "MMM d, yyyy")}. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Keep Booking</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleCancel(b.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Yes, Cancel
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </div>
             ))}
           </div>
