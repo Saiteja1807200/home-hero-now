@@ -193,6 +193,29 @@ export default function BecomeProvider() {
           </div>
 
           {/* Category Selection */}
+          {/* Coverage Area */}
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-foreground">Service Area</p>
+            <div className="grid grid-cols-2 gap-2">
+              {MANCHERIAL_LOCATIONS.map((loc) => (
+                <button
+                  key={loc}
+                  type="button"
+                  onClick={() => setCoverageArea(loc)}
+                  className={`flex items-center gap-2 rounded-xl border p-2.5 text-xs font-medium transition-colors ${
+                    coverageArea === loc
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-foreground"
+                  }`}
+                >
+                  <MapPin size={12} className="flex-shrink-0" />
+                  <span className="truncate">{loc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Category Selection */}
           <div className="space-y-3">
             <p className="text-sm font-medium text-foreground">Services You Offer</p>
             {catLoading ? (
