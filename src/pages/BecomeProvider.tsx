@@ -41,6 +41,7 @@ export default function BecomeProvider() {
   const { data: categories, isLoading: catLoading } = useServiceCategories();
 
   const [selectedServices, setSelectedServices] = useState<SelectedService[]>([]);
+  const [coverageArea, setCoverageArea] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
