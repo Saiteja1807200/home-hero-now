@@ -65,7 +65,7 @@ export default function RecommendedProviders() {
         }
 
         const { data: reviews } = await supabase
-          .from("reviews")
+          .from("public_reviews")
           .select("quality, punctuality, cleanliness, professionalism")
           .eq("provider_id", p.id);
 
