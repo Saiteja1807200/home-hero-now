@@ -1,3 +1,4 @@
+import { useState } from "react";
 import LocationBar from "@/components/home/LocationBar";
 import SearchBar from "@/components/home/SearchBar";
 import CategoryGrid from "@/components/home/CategoryGrid";
@@ -9,8 +10,18 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { BookingStatus } from "@/lib/constants";
 
+const LOCATION_KEY = "selected-location";
+
 const Index = () => {
   const { user } = useAuth();
+  const [selectedLocation, setSelectedLocation] = useState<string>(
+    () => localStorage.getItem(LOCATION_KEY) || "Mancherial Town Center"
+  );
+
+  const handleLocationChange = (loc: string) => {
+    setSelectedLocation(loc);
+    localStorage.setItem(LOCATION_KEY, loc);
+  };
 
   const { data: activeBooking } = useQuery({
     queryKey: ["active-booking", user?.id],
@@ -18,14 +29,7 @@ const Index = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("bookings")
-        .select(`
-          id,
-          status,
-          scheduled_date,
-          scheduled_time,
-          service_id,
-          provider_id
-        `)
+        .select(`id, status, scheduled_date, scheduled_time, service_id, provider_id`)
         .eq("customer_id", user!.id)
         .in("status", ["accepted", "on_the_way", "in_progress"])
         .order("scheduled_date", { ascending: true })
@@ -35,7 +39,6 @@ const Index = () => {
       if (error) throw error;
       if (!data) return null;
 
-      // Fetch provider name via service_providers -> profiles
       const { data: provider } = await supabase
         .from("service_providers")
         .select("user_id")
@@ -52,7 +55,6 @@ const Index = () => {
         if (profile?.full_name) providerName = profile.full_name;
       }
 
-      // Fetch service name via provider_services -> service_categories
       const { data: providerService } = await supabase
         .from("provider_services")
         .select("category_id")
@@ -81,7 +83,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <BrandHeader />
-      <LocationBar />
+      <LocationBar selectedLocation={selectedLocation} onLocationChange={handleLocationChange} />
       <SearchBar />
       <CategoryGrid />
       {activeBooking && (
@@ -92,7 +94,7 @@ const Index = () => {
           time={activeBooking.time}
         />
       )}
-      <RecommendedProviders />
+      <RecommendedProviders selectedLocation={selectedLocation} />
     </div>
   );
 };

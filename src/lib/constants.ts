@@ -50,3 +50,28 @@ export const BOOKING_STATUS_COLORS: Record<BookingStatus, string> = {
   completed: "bg-success/15 text-success",
   cancelled: "bg-destructive/15 text-destructive",
 };
+
+export const MANCHERIAL_LOCATIONS = [
+  "Mancherial Town Center",
+  "Bellampally Chowrasta",
+  "Bellampally Bus Stand",
+  "Rajiv Nagar",
+  "Gandhi Nagar",
+  "IB Chowrasta",
+  "Bus Stand Area",
+  "Railway Station Area",
+  "Naspur",
+  "Ramakrishnapur",
+  "Indaram",
+  "Bheemaram",
+  "Chennur",
+  "Luxettipet",
+  "Mandamarri",
+  "Jaipur",
+  "Thandur",
+  "Devapur",
+  "Dandepally",
+  "Kotapalli",
+] as const;
+
+export type MancherialLocation = (typeof MANCHERIAL_LOCATIONS)[number];

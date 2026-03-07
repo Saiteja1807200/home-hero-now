@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { MapPin } from "lucide-react";
 import ProviderCard from "./ProviderCard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,19 +21,24 @@ interface RecommendedProvider {
   basePrice: number;
 }
 
-export default function RecommendedProviders() {
+interface Props {
+  selectedLocation: string;
+}
+
+export default function RecommendedProviders({ selectedLocation }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [bookingProvider, setBookingProvider] = useState<RecommendedProvider | null>(null);
 
   const { data: providers, isLoading } = useQuery({
-    queryKey: ["recommended-providers"],
+    queryKey: ["recommended-providers", selectedLocation],
     queryFn: async () => {
       const { data: providerRows, error } = await supabase
         .from("public_providers")
-        .select("id, user_id, verified, is_online")
+        .select("id, user_id, verified, is_online, coverage_area")
         .eq("status", "approved")
         .eq("is_online", true)
+        .eq("coverage_area", selectedLocation)
         .limit(10);
 
       if (error) throw error;
@@ -73,7 +79,7 @@ export default function RecommendedProviders() {
         const jobs = reviews?.length ?? 0;
         if (reviews && reviews.length > 0) {
           const avg = reviews.reduce((sum, r) => {
-            return sum + (r.quality + r.punctuality + r.cleanliness + r.professionalism) / 4;
+            return sum + ((r.quality ?? 0) + (r.punctuality ?? 0) + (r.cleanliness ?? 0) + (r.professionalism ?? 0)) / 4;
           }, 0) / reviews.length;
           rating = Math.round(avg * 10) / 10;
         }
@@ -120,7 +126,21 @@ export default function RecommendedProviders() {
     );
   }
 
-  if (!providers || providers.length === 0) return null;
+  if (!providers || providers.length === 0) {
+    return (
+      <section className="py-4">
+        <div className="flex items-center justify-between px-4 mb-3">
+          <h2 className="font-display text-lg font-bold text-foreground">Recommended</h2>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center">
+          <MapPin size={32} className="text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            No providers currently available in this area.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-4">
