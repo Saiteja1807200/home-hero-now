@@ -85,6 +85,8 @@ export default function BecomeProvider() {
           bio: values.bio,
           experience_years: values.experience_years,
           coverage_area_km: values.coverage_area_km,
+          coverage_area: coverageArea,
+          city: "Mancherial",
         })
         .select("id")
         .single();
