@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Briefcase, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Briefcase, Check, Loader2, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useServiceCategories } from "@/hooks/useServiceCategories";
 import { useToast } from "@/hooks/use-toast";
+import { MANCHERIAL_LOCATIONS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +41,7 @@ export default function BecomeProvider() {
   const { data: categories, isLoading: catLoading } = useServiceCategories();
 
   const [selectedServices, setSelectedServices] = useState<SelectedService[]>([]);
+  const [coverageArea, setCoverageArea] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -68,6 +70,10 @@ export default function BecomeProvider() {
       toast({ title: "Select at least one service category", variant: "destructive" });
       return;
     }
+    if (!coverageArea) {
+      toast({ title: "Select your service area", variant: "destructive" });
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -79,7 +85,9 @@ export default function BecomeProvider() {
           bio: values.bio,
           experience_years: values.experience_years,
           coverage_area_km: values.coverage_area_km,
-        })
+          coverage_area: coverageArea,
+          city: "Mancherial",
+        } as any)
         .select("id")
         .single();
 
@@ -182,6 +190,29 @@ export default function BecomeProvider() {
                 </FormItem>
               )}
             />
+          </div>
+
+          {/* Category Selection */}
+          {/* Coverage Area */}
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-foreground">Service Area</p>
+            <div className="grid grid-cols-2 gap-2">
+              {MANCHERIAL_LOCATIONS.map((loc) => (
+                <button
+                  key={loc}
+                  type="button"
+                  onClick={() => setCoverageArea(loc)}
+                  className={`flex items-center gap-2 rounded-xl border p-2.5 text-xs font-medium transition-colors ${
+                    coverageArea === loc
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-foreground"
+                  }`}
+                >
+                  <MapPin size={12} className="flex-shrink-0" />
+                  <span className="truncate">{loc}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Category Selection */}

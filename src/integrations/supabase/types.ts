@@ -288,7 +288,9 @@ export type Database = {
       service_providers: {
         Row: {
           bio: string | null
+          city: string
           commission_rate: number
+          coverage_area: string
           coverage_area_km: number
           created_at: string
           experience_years: number
@@ -300,7 +302,9 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          city?: string
           commission_rate?: number
+          coverage_area?: string
           coverage_area_km?: number
           created_at?: string
           experience_years?: number
@@ -312,7 +316,9 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          city?: string
           commission_rate?: number
+          coverage_area?: string
           coverage_area_km?: number
           created_at?: string
           experience_years?: number
@@ -379,6 +385,8 @@ export type Database = {
       public_providers: {
         Row: {
           bio: string | null
+          city: string | null
+          coverage_area: string | null
           coverage_area_km: number | null
           created_at: string | null
           experience_years: number | null
@@ -390,6 +398,8 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          city?: string | null
+          coverage_area?: string | null
           coverage_area_km?: number | null
           created_at?: string | null
           experience_years?: number | null
@@ -401,6 +411,8 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          city?: string | null
+          coverage_area?: string | null
           coverage_area_km?: number | null
           created_at?: string | null
           experience_years?: number | null
