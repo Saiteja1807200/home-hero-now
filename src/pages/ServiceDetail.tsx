@@ -1,16 +1,27 @@
+import { useState } from "react";
 import { useServiceCategories } from "@/hooks/useServiceCategories";
 import { useProvidersByCategory } from "@/hooks/useProvidersByCategory";
-import { ArrowLeft, Search, UserCheck, Star, BadgeCheck } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { ArrowLeft, Search, UserCheck, BadgeCheck } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import BookingDialog from "@/components/booking/BookingDialog";
 
 export default function ServiceDetail() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: categories, isLoading: catLoading } = useServiceCategories();
   const { data: providers, isLoading: provLoading } = useProvidersByCategory(categoryId);
+
+  const [bookingProvider, setBookingProvider] = useState<{
+    providerId: string;
+    providerName: string;
+    serviceId: string;
+    basePrice: number;
+  } | null>(null);
 
   const category = categories?.find((c) => c.id === categoryId);
 
@@ -33,6 +44,19 @@ export default function ServiceDetail() {
       </div>
     );
   }
+
+  const handleBookNow = (p: { id: string; full_name: string | null; service_id: string; base_price: number }) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setBookingProvider({
+      providerId: p.id,
+      providerName: p.full_name ?? "Provider",
+      serviceId: p.service_id,
+      basePrice: p.base_price,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -103,7 +127,11 @@ export default function ServiceDetail() {
                   )}
                   <div className="mt-2 flex items-center justify-between">
                     <span className="text-sm font-semibold text-foreground">₹{p.base_price}</span>
-                    <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold h-8 px-4">
+                    <Button
+                      size="sm"
+                      className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold h-8 px-4"
+                      onClick={() => handleBookNow(p)}
+                    >
                       Book Now
                     </Button>
                   </div>
@@ -130,6 +158,19 @@ export default function ServiceDetail() {
             We're onboarding {category.name.toLowerCase()} providers in your area. Check back soon!
           </p>
         </motion.div>
+      )}
+
+      {/* Booking Dialog */}
+      {bookingProvider && (
+        <BookingDialog
+          open={!!bookingProvider}
+          onOpenChange={(open) => !open && setBookingProvider(null)}
+          providerId={bookingProvider.providerId}
+          providerName={bookingProvider.providerName}
+          serviceId={bookingProvider.serviceId}
+          serviceName={category.name}
+          basePrice={bookingProvider.basePrice}
+        />
       )}
     </div>
   );

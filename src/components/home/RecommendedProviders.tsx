@@ -38,7 +38,7 @@ export default function RecommendedProviders() {
           .from("profiles")
           .select("full_name")
           .eq("id", p.user_id)
-          .single();
+          .maybeSingle();
 
         // Get first service category name
         const { data: svc } = await supabase
