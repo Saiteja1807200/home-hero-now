@@ -1,4 +1,4 @@
-import { User, MapPin, Settings, LogOut, ChevronRight, Star, CalendarDays, Briefcase } from "lucide-react";
+import { User, MapPin, Settings, LogOut, ChevronRight, Star, CalendarDays, Briefcase, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
