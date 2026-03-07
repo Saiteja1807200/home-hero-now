@@ -70,6 +70,10 @@ export default function BecomeProvider() {
       toast({ title: "Select at least one service category", variant: "destructive" });
       return;
     }
+    if (!coverageArea) {
+      toast({ title: "Select your service area", variant: "destructive" });
+      return;
+    }
 
     setSubmitting(true);
     try {
