@@ -38,6 +38,15 @@ export default function Profile() {
     enabled: !!user,
   });
 
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.rpc("has_role", { _user_id: user!.id, _role: "admin" });
+      return data === true;
+    },
+    enabled: !!user,
+  });
+
   // Dynamic stats
   const { data: stats } = useQuery({
     queryKey: ["my-profile-stats", user?.id],
