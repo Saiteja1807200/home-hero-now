@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useServiceCategories } from "@/hooks/useServiceCategories";
 import { useToast } from "@/hooks/use-toast";
+import { MANCHERIAL_LOCATIONS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
