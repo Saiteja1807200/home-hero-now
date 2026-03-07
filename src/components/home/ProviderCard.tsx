@@ -11,10 +11,11 @@ interface ProviderCardProps {
   eta: string;
   image?: string;
   verified?: boolean;
+  onBookNow?: () => void;
 }
 
 export default function ProviderCard({
-  name, service, rating, jobs, distance, eta, image, verified,
+  name, service, rating, jobs, distance, eta, image, verified, onBookNow,
 }: ProviderCardProps) {
   return (
     <motion.div
@@ -60,6 +61,7 @@ export default function ProviderCard({
       <Button
         size="sm"
         className="mt-3 w-full bg-accent text-accent-foreground hover:bg-accent/90 font-semibold touch-target"
+        onClick={onBookNow}
       >
         Book Now
       </Button>

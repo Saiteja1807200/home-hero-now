@@ -1,9 +1,15 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ProviderCard from "./ProviderCard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import BookingDialog from "@/components/booking/BookingDialog";
 
 interface RecommendedProvider {
+  providerId: string;
+  serviceId: string;
   name: string;
   service: string;
   rating: number;
@@ -11,13 +17,17 @@ interface RecommendedProvider {
   distance: string;
   eta: string;
   verified: boolean;
+  basePrice: number;
 }
 
 export default function RecommendedProviders() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [bookingProvider, setBookingProvider] = useState<RecommendedProvider | null>(null);
+
   const { data: providers, isLoading } = useQuery({
     queryKey: ["recommended-providers"],
     queryFn: async () => {
-      // Fetch approved, online providers
       const { data: providerRows, error } = await supabase
         .from("public_providers")
         .select("id, user_id, verified, is_online")
@@ -33,15 +43,13 @@ export default function RecommendedProviders() {
       for (const p of providerRows) {
         if (!p.user_id || !p.id) continue;
 
-        // Get profile name via safe RPC (no PII exposure)
         const { data: profileRows } = await supabase
           .rpc("get_provider_profile", { provider_user_id: p.user_id });
         const profile = profileRows?.[0] ?? null;
 
-        // Get first service category name
         const { data: svc } = await supabase
           .from("provider_services")
-          .select("category_id")
+          .select("id, category_id, base_price")
           .eq("provider_id", p.id)
           .limit(1)
           .maybeSingle();
@@ -56,7 +64,6 @@ export default function RecommendedProviders() {
           if (cat?.name) serviceName = cat.name;
         }
 
-        // Get review stats
         const { data: reviews } = await supabase
           .from("reviews")
           .select("quality, punctuality, cleanliness, professionalism")
@@ -72,6 +79,8 @@ export default function RecommendedProviders() {
         }
 
         results.push({
+          providerId: p.id,
+          serviceId: svc?.id ?? "",
           name: profile?.full_name || "Provider",
           service: serviceName,
           rating,
@@ -79,12 +88,21 @@ export default function RecommendedProviders() {
           distance: "Nearby",
           eta: "~15 min",
           verified: p.verified ?? false,
+          basePrice: svc?.base_price ?? 0,
         });
       }
 
       return results;
     },
   });
+
+  const handleBookNow = (provider: RecommendedProvider) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setBookingProvider(provider);
+  };
 
   if (isLoading) {
     return (
@@ -112,9 +130,31 @@ export default function RecommendedProviders() {
       </div>
       <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-none">
         {providers.map((p) => (
-          <ProviderCard key={p.name} {...p} />
+          <ProviderCard
+            key={p.providerId}
+            name={p.name}
+            service={p.service}
+            rating={p.rating}
+            jobs={p.jobs}
+            distance={p.distance}
+            eta={p.eta}
+            verified={p.verified}
+            onBookNow={() => handleBookNow(p)}
+          />
         ))}
       </div>
+
+      {bookingProvider && (
+        <BookingDialog
+          open={!!bookingProvider}
+          onOpenChange={(open) => !open && setBookingProvider(null)}
+          providerId={bookingProvider.providerId}
+          providerName={bookingProvider.name}
+          serviceId={bookingProvider.serviceId}
+          serviceName={bookingProvider.service}
+          basePrice={bookingProvider.basePrice}
+        />
+      )}
     </section>
   );
 }
