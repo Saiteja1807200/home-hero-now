@@ -56,6 +56,7 @@ export default function Bookings() {
     toast.success("Booking cancelled");
     queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
     queryClient.invalidateQueries({ queryKey: ["active-booking"] });
+    queryClient.invalidateQueries({ queryKey: ["my-profile-stats"] });
   };
 
   const { data: bookings, isLoading } = useQuery({

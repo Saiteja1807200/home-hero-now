@@ -43,7 +43,7 @@ export default function Profile() {
     queryKey: ["my-profile-stats", user?.id],
     queryFn: async () => {
       const [bookingsRes, reviewsRes, addressesRes] = await Promise.all([
-        supabase.from("bookings").select("id", { count: "exact", head: true }).eq("customer_id", user!.id),
+        supabase.from("bookings").select("id", { count: "exact", head: true }).eq("customer_id", user!.id).neq("status", "cancelled"),
         supabase.from("reviews").select("id", { count: "exact", head: true }).eq("customer_id", user!.id),
         supabase.from("addresses").select("id", { count: "exact", head: true }).eq("user_id", user!.id),
       ]);
