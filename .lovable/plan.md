@@ -1,33 +1,21 @@
-# UI Branding Update — Add Logo + "fixitnow" Header
 
-## Changes
 
-### 1. Copy logo to project
+## Fix: Profile Bookings Count Should Exclude Cancelled Bookings
 
-- Copy uploaded logo to `src/assets/logo.png`
+### Problem
+The Profile page counts **all** bookings (including cancelled ones). It should only count active/non-cancelled bookings, so when a user cancels a booking, the count decreases.
 
-### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
+### Change
 
-- Displays the logo image (32–40px height) + "FixItNow" text beside it
-- Centered horizontally in the header area
-- Used consistently across Home, Services, Bookings, Messages, and Profile screens
-- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
+**`src/pages/Profile.tsx`** (line 46): Add `.neq("status", "cancelled")` to the bookings count query, matching the same filter used in the Bookings tab.
 
-### 3. Add `BrandHeader` to all main screens
+```typescript
+supabase.from("bookings").select("id", { count: "exact", head: true })
+  .eq("customer_id", user!.id)
+  .neq("status", "cancelled")
+```
 
-- `**Index.tsx**` — add above `LocationBar`
-- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
-- `**Bookings.tsx**` — add at top
-- `**Messages.tsx**` — add at top
-- `**Profile.tsx**` — add at top
+Also invalidate the `my-profile-stats` query key from `Bookings.tsx` after cancellation so the count updates immediately without requiring a page refresh.
 
-### 4. PWA icons
+**`src/pages/Bookings.tsx`**: Add `queryClient.invalidateQueries({ queryKey: ["my-profile-stats"] })` inside `handleCancel` after successful cancellation.
 
-- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
-- Update favicon reference
-
-### Files
-
-- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
-- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
-- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
