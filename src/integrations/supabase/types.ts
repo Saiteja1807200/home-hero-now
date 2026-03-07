@@ -330,13 +330,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "service_providers_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "public_provider_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       system_logs: {
@@ -383,14 +376,6 @@ export type Database = {
       }
     }
     Views: {
-      public_provider_profiles: {
-        Row: {
-          avatar_url: string | null
-          full_name: string | null
-          id: string | null
-        }
-        Relationships: []
-      }
       public_providers: {
         Row: {
           bio: string | null
@@ -433,17 +418,26 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "service_providers_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "public_provider_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
     }
     Functions: {
+      get_provider_profile: {
+        Args: { provider_user_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+        }[]
+      }
+      get_provider_profiles: {
+        Args: { provider_user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
