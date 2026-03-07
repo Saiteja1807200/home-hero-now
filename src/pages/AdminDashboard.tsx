@@ -51,16 +51,26 @@ export default function AdminDashboard() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "approved" | "rejected" }) => {
+    mutationFn: async ({ id, status, userId }: { id: string; status: "approved" | "rejected"; userId: string }) => {
       const { error } = await supabase
         .from("service_providers")
         .update({ status })
         .eq("id", id);
       if (error) throw error;
+
+      // Send approval notification email
+      if (status === "approved") {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        await supabase.functions.invoke("notify-provider-approval", {
+          body: { provider_user_id: userId },
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+      }
     },
     onSuccess: (_, { status }) => {
       queryClient.invalidateQueries({ queryKey: ["pending-providers"] });
-      toast({ title: `Provider ${status}` });
+      toast({ title: status === "approved" ? "Provider approved & notified" : `Provider ${status}` });
     },
     onError: (err: Error) => {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -111,9 +121,9 @@ export default function AdminDashboard() {
                     {p.bio && <p className="italic">"{p.bio}"</p>}
                   </div>
                   <div className="flex gap-2 pt-1">
-                    <Button
+                     <Button
                       size="sm"
-                      onClick={() => updateStatus.mutate({ id: p.id, status: "approved" })}
+                      onClick={() => updateStatus.mutate({ id: p.id, status: "approved", userId: p.user_id })}
                       disabled={updateStatus.isPending}
                     >
                       <ShieldCheck size={16} className="mr-1" /> Approve
@@ -121,7 +131,7 @@ export default function AdminDashboard() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => updateStatus.mutate({ id: p.id, status: "rejected" })}
+                      onClick={() => updateStatus.mutate({ id: p.id, status: "rejected", userId: p.user_id })}
                       disabled={updateStatus.isPending}
                     >
                       <ShieldX size={16} className="mr-1" /> Reject
