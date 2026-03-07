@@ -10,6 +10,20 @@ export default function Profile() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
+  // Fetch profile from DB
+  const { data: profile } = useQuery({
+    queryKey: ["my-profile", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url, phone")
+        .eq("id", user!.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
+
   // Check if user is already a provider
   const { data: providerStatus } = useQuery({
     queryKey: ["my-provider-status", user?.id],
@@ -24,7 +38,25 @@ export default function Profile() {
     enabled: !!user,
   });
 
-  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest User";
+  // Dynamic stats
+  const { data: stats } = useQuery({
+    queryKey: ["my-profile-stats", user?.id],
+    queryFn: async () => {
+      const [bookingsRes, reviewsRes, addressesRes] = await Promise.all([
+        supabase.from("bookings").select("id", { count: "exact", head: true }).eq("customer_id", user!.id),
+        supabase.from("reviews").select("id", { count: "exact", head: true }).eq("customer_id", user!.id),
+        supabase.from("addresses").select("id", { count: "exact", head: true }).eq("user_id", user!.id),
+      ]);
+      return {
+        bookings: bookingsRes.count ?? 0,
+        reviews: reviewsRes.count ?? 0,
+        addresses: addressesRes.count ?? 0,
+      };
+    },
+    enabled: !!user,
+  });
+
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest User";
   const initials = displayName.charAt(0).toUpperCase();
   const email = user?.email || "Sign in to manage your account";
 
@@ -39,9 +71,13 @@ export default function Profile() {
       {/* Header */}
       <div className="px-4 pb-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground font-display text-xl font-bold">
-            {initials}
-          </div>
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="Avatar" className="h-16 w-16 rounded-2xl object-cover" />
+          ) : (
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground font-display text-xl font-bold">
+              {initials}
+            </div>
+          )}
           <div>
             <h1 className="font-display text-lg font-bold text-foreground">{displayName}</h1>
             <p className="text-sm text-muted-foreground">{email}</p>
@@ -60,9 +96,9 @@ export default function Profile() {
       {/* Stats */}
       <div className="flex gap-4 px-4 py-3">
         {[
-          { icon: CalendarDays, label: "Bookings", value: "0" },
-          { icon: Star, label: "Reviews", value: "0" },
-          { icon: MapPin, label: "Addresses", value: "0" },
+          { icon: CalendarDays, label: "Bookings", value: String(stats?.bookings ?? 0) },
+          { icon: Star, label: "Reviews", value: String(stats?.reviews ?? 0) },
+          { icon: MapPin, label: "Addresses", value: String(stats?.addresses ?? 0) },
         ].map(({ icon: Icon, label, value }) => (
           <div key={label} className="flex-1 rounded-xl border border-border bg-card p-3 text-center">
             <Icon size={18} className="mx-auto mb-1 text-muted-foreground" />
@@ -75,12 +111,12 @@ export default function Profile() {
       {/* Menu */}
       <div className="mt-2 px-4">
         {[
-          { icon: User, label: "Edit Profile", action: () => {} },
-          { icon: MapPin, label: "Saved Addresses", action: () => {} },
+          { icon: User, label: "Edit Profile", action: () => navigate("/edit-profile") },
+          { icon: MapPin, label: "Saved Addresses", action: () => navigate("/saved-addresses") },
           ...(!providerStatus
             ? [{ icon: Briefcase, label: "Become a Provider", action: () => navigate("/become-provider") }]
             : [{ icon: Briefcase, label: `Provider Dashboard (${providerStatus.status})`, action: () => {} }]),
-          { icon: Settings, label: "Settings", action: () => {} },
+          { icon: Settings, label: "Settings", action: () => navigate("/settings") },
           ...(user ? [{ icon: LogOut, label: "Sign Out", action: handleSignOut }] : []),
         ].map(({ icon: Icon, label, action }) => (
           <button
