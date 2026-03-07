@@ -420,6 +420,64 @@ export type Database = {
           },
         ]
       }
+      public_reviews: {
+        Row: {
+          booking_id: string | null
+          cleanliness: number | null
+          comment: string | null
+          created_at: string | null
+          id: string | null
+          professionalism: number | null
+          provider_id: string | null
+          punctuality: number | null
+          quality: number | null
+        }
+        Insert: {
+          booking_id?: string | null
+          cleanliness?: number | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string | null
+          professionalism?: number | null
+          provider_id?: string | null
+          punctuality?: number | null
+          quality?: number | null
+        }
+        Update: {
+          booking_id?: string | null
+          cleanliness?: number | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string | null
+          professionalism?: number | null
+          provider_id?: string | null
+          punctuality?: number | null
+          quality?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "public_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_provider_profile: {
