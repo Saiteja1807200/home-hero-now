@@ -115,7 +115,7 @@ export default function Profile() {
           { icon: MapPin, label: "Saved Addresses", action: () => navigate("/saved-addresses") },
           ...(!providerStatus
             ? [{ icon: Briefcase, label: "Become a Provider", action: () => navigate("/become-provider") }]
-            : [{ icon: Briefcase, label: `Provider Dashboard (${providerStatus.status})`, action: () => navigate("/provider-dashboard") }]),
+            : [{ icon: Briefcase, label: "Provider Dashboard", action: () => navigate("/provider-dashboard") }]),
           { icon: Settings, label: "Settings", action: () => navigate("/settings") },
           ...(user ? [{ icon: LogOut, label: "Sign Out", action: handleSignOut }] : []),
         ].map(({ icon: Icon, label, action }) => (
