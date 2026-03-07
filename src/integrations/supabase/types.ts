@@ -422,6 +422,22 @@ export type Database = {
       }
     }
     Functions: {
+      get_provider_profile: {
+        Args: { provider_user_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+        }[]
+      }
+      get_provider_profiles: {
+        Args: { provider_user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

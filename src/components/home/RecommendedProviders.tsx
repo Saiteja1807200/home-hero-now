@@ -33,12 +33,10 @@ export default function RecommendedProviders() {
       for (const p of providerRows) {
         if (!p.user_id || !p.id) continue;
 
-        // Get profile name
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", p.user_id)
-          .maybeSingle();
+        // Get profile name via safe RPC (no PII exposure)
+        const { data: profileRows } = await supabase
+          .rpc("get_provider_profile", { provider_user_id: p.user_id });
+        const profile = profileRows?.[0] ?? null;
 
         // Get first service category name
         const { data: svc } = await supabase

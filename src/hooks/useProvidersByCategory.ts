@@ -37,12 +37,10 @@ async function fetchProviders(categoryId: string): Promise<ProviderWithProfile[]
   if (provErr) throw provErr;
   if (!providers || providers.length === 0) return [];
 
-  // Fetch profiles for those users
+  // Fetch profiles for those users via safe RPC (no PII exposure)
   const userIds = providers.map((p) => p.user_id).filter(Boolean) as string[];
   const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, full_name, avatar_url")
-    .in("id", userIds);
+    .rpc("get_provider_profiles", { provider_user_ids: userIds });
 
   const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
   const serviceMap = new Map(services.map((s) => [s.provider_id, s]));

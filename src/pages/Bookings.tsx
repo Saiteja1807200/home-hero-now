@@ -43,7 +43,7 @@ export default function Bookings() {
       const results: BookingRow[] = [];
 
       for (const b of data) {
-        // Resolve provider name
+        // Resolve provider name via safe RPC
         let providerName = "Provider";
         const { data: sp } = await supabase
           .from("service_providers")
@@ -51,11 +51,9 @@ export default function Bookings() {
           .eq("id", b.provider_id)
           .maybeSingle();
         if (sp?.user_id) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", sp.user_id)
-            .maybeSingle();
+          const { data: profileRows } = await supabase
+            .rpc("get_provider_profile", { provider_user_id: sp.user_id });
+          const profile = profileRows?.[0] ?? null;
           if (profile?.full_name) providerName = profile.full_name;
         }
 
