@@ -66,6 +66,7 @@ export default function Bookings() {
         .from("bookings")
         .select("id, status, scheduled_date, scheduled_time, notes, created_at, provider_id, service_id")
         .eq("customer_id", user!.id)
+        .neq("status", "cancelled")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
