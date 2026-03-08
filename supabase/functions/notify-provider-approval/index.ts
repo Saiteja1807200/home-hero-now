@@ -55,11 +55,11 @@ Deno.serve(async (req) => {
       const emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: #F97316; margin: 0;">FixNow</h2>
+            <h2 style="color: #1e3a5f; margin: 0;">Home Hero</h2>
           </div>
           <p style="font-size: 16px; color: #333;">Dear ${providerName},</p>
           <p style="font-size: 15px; color: #555; line-height: 1.6;">
-            We are pleased to inform you that your service provider account on <strong>FixNow</strong> has been successfully approved.
+            We are pleased to inform you that your service provider account on <strong>Home Hero</strong> has been successfully approved.
           </p>
           <p style="font-size: 15px; color: #555; line-height: 1.6;">
             You can now start receiving service requests from customers in your selected coverage areas.
@@ -77,13 +77,13 @@ Deno.serve(async (req) => {
             If you have any questions or require assistance, feel free to contact our support team.
           </p>
           <p style="font-size: 15px; color: #555; line-height: 1.6;">
-            Thank you for joining FixNow. We look forward to helping you connect with customers and grow your services.
+            Thank you for joining Home Hero. We look forward to helping you connect with customers and grow your services.
           </p>
           <br/>
-          <p style="font-size: 15px; color: #333;">Best regards,<br/><strong>FixNow Support Team</strong></p>
+          <p style="font-size: 15px; color: #333;">Best regards,<br/><strong>Home Hero Support Team</strong></p>
           <hr style="border: none; border-top: 1px solid #eee; margin-top: 30px;" />
           <p style="font-size: 12px; color: #999; text-align: center;">
-            This is an automated message from FixNow. Please do not reply to this email.
+            This is an automated message from Home Hero. Please do not reply to this email.
           </p>
         </div>
       `;
@@ -95,9 +95,9 @@ Deno.serve(async (req) => {
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: "FixNow <onboarding@resend.dev>",
+          from: "Home Hero <onboarding@resend.dev>",
           to: [profile.email],
-          subject: "Provider Account Approved – FixNow",
+          subject: "Provider Account Approved – Home Hero",
           html: emailHtml,
         }),
       });
