@@ -241,7 +241,7 @@ export default function Auth() {
                       ? "📧 We'll send an OTP to your email"
                       : inputType === "phone"
                       ? "📱 We'll send an OTP via SMS"
-                      : "Enter a valid email or 10+ digit phone number"}
+                      : "Enter a valid email or 10+ digit mobile number"}
                   </p>
                 )}
               </div>
