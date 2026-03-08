@@ -230,7 +230,7 @@ export default function Auth() {
                 <Label htmlFor="identifier">Email or Mobile Number</Label>
                 <Input
                   id="identifier"
-                  placeholder="you@example.com or 9876543210"
+                  placeholder="you@example.com or mobile number"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   required
