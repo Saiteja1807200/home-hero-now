@@ -1,33 +1,26 @@
-# UI Branding Update — Add Logo + "fixitnow" Header
+
+
+# Fix: Delete Account Edge Function Error
+
+## Problem
+
+The edge function fails with `"supabaseKey is required."` because it reads `SUPABASE_PUBLISHABLE_KEY` (line 19), which is not a standard Supabase Edge Function environment variable. The correct variable name is `SUPABASE_ANON_KEY`.
+
+Additionally, the function only deletes `addresses` and `profiles`, but there are other tables with `user_id` references (`user_roles`, `service_providers`, `public_providers`, `system_logs`) and potentially `bookings` (via `customer_id`/`provider_id`) that could block deletion due to foreign key constraints.
 
 ## Changes
 
-### 1. Copy logo to project
+### File: `supabase/functions/delete-account/index.ts`
 
-- Copy uploaded logo to `src/assets/logo.png`
+1. **Line 19**: Change `SUPABASE_PUBLISHABLE_KEY` to `SUPABASE_ANON_KEY`
+2. **Before deleting profile**, add deletion of related rows from:
+   - `user_roles` (where `user_id`)
+   - `service_providers` (where `user_id`)
+   - `public_providers` (where `user_id`)
+   - `system_logs` (where `user_id`)
+   - `provider_services` (where `provider_id` matches user)
+   - `reviews` / `public_reviews` (where `customer_id` or `provider_id`)
+   - `bookings`: set `customer_id`/`provider_id` to null (preserve records for archival)
 
-### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
+Order: delete child references first, then `profiles`, then auth user.
 
-- Displays the logo image (32–40px height) + "FixItNow" text beside it
-- Centered horizontally in the header area
-- Used consistently across Home, Services, Bookings, Messages, and Profile screens
-- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
-
-### 3. Add `BrandHeader` to all main screens
-
-- `**Index.tsx**` — add above `LocationBar`
-- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
-- `**Bookings.tsx**` — add at top
-- `**Messages.tsx**` — add at top
-- `**Profile.tsx**` — add at top
-
-### 4. PWA icons
-
-- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
-- Update favicon reference
-
-### Files
-
-- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
-- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
-- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
