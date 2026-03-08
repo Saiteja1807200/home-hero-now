@@ -1,6 +1,7 @@
 import {
   Zap, Droplets, Wind, WashingMachine, Refrigerator, Tv,
   Bug, Sparkles, Hammer, GlassWater, Filter, Flame, CookingPot, Paintbrush,
+  Smartphone, Laptop, Wrench, Camera, Settings, Grid3x3, TreePine,
   type LucideIcon,
 } from "lucide-react";
 
@@ -20,6 +21,13 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   Flame,
   CookingPot,
   Paintbrush,
+  Smartphone,
+  Laptop,
+  Wrench,
+  Camera,
+  Settings,
+  Grid3x3,
+  TreePine,
 };
 
 export const BOOKING_STATUSES = [
