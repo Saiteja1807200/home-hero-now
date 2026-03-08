@@ -165,11 +165,18 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 relative">
+      <button
+        type="button"
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <Home className="h-4 w-4" />
+        Home
+      </button>
+
       <div className="mb-8 flex flex-col items-center gap-2">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
-          <Wrench className="h-7 w-7 text-primary-foreground" />
-        </div>
+        <img src={logo} alt="Home Hero logo" className="h-16 w-16 rounded-2xl object-contain" />
         <h1 className="font-display text-2xl font-bold text-foreground">Home Hero</h1>
         <p className="text-sm text-muted-foreground">Your Trusted Service Experts</p>
       </div>
