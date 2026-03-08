@@ -36,13 +36,13 @@
 
     --radius: 0.75rem;
 
-    --sidebar-background: 185 30% 12%;
-    --sidebar-foreground: 180 10% 95%;
+    --sidebar-background: 213 30% 12%;
+    --sidebar-foreground: 213 10% 95%;
     --sidebar-primary: 25 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 185 30% 18%;
-    --sidebar-accent-foreground: 180 10% 95%;
-    --sidebar-border: 185 25% 20%;
+    --sidebar-accent: 213 30% 18%;
+    --sidebar-accent-foreground: 213 10% 95%;
+    --sidebar-border: 213 25% 20%;
     --sidebar-ring: 25 95% 53%;
 
     /* Custom tokens */
