@@ -130,7 +130,7 @@ export default function Auth() {
         const res = await supabase.auth.verifyOtp({
           email: identifier.trim(),
           token: otp,
-          type: isSignUp ? "signup" : "email",
+          type: "email",
         });
         error = res.error;
       } else {
