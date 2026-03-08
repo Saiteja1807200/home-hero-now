@@ -1,33 +1,25 @@
-# UI Branding Update — Add Logo + "fixitnow" Header
 
-## Changes
 
-### 1. Copy logo to project
+# Fix: Email OTP Verification Type
 
-- Copy uploaded logo to `src/assets/logo.png`
+## Problem
 
-### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
+On line 133 of `Auth.tsx`, the `verifyOtp` call uses `type: "signup"` when `isSignUp` is true. The `"signup"` type is meant for verifying magic link confirmation tokens, not 6-digit OTP codes. This causes verification to fail because Supabase looks for a different token type.
 
-- Displays the logo image (32–40px height) + "FixItNow" text beside it
-- Centered horizontally in the header area
-- Used consistently across Home, Services, Bookings, Messages, and Profile screens
-- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
+## Fix
 
-### 3. Add `BrandHeader` to all main screens
+**File: `src/pages/Auth.tsx`** (line 133)
 
-- `**Index.tsx**` — add above `LocationBar`
-- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
-- `**Bookings.tsx**` — add at top
-- `**Messages.tsx**` — add at top
-- `**Profile.tsx**` — add at top
+Change:
+```typescript
+type: isSignUp ? "signup" : "email",
+```
+To:
+```typescript
+type: "email",
+```
 
-### 4. PWA icons
+The `"email"` type is the correct verification type for email OTP codes in all cases (both new signups and returning sign-ins). Supabase's `signInWithOtp` with `shouldCreateUser: true` already handles account creation -- the verify step just needs to validate the 6-digit code.
 
-- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
-- Update favicon reference
+This is a single-line fix. No other files need changes.
 
-### Files
-
-- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
-- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
-- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
