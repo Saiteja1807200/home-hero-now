@@ -1,62 +1,33 @@
-# Rebranding: FixNow/FixItNow → Home Hero
+# UI Branding Update — Add Logo + "fixitnow" Header
 
-## Overview
+## Changes
 
-Replace all branding references across the entire application with "Home Hero" and swap the logo with the uploaded image. Update colors to deep blue + bright orange theme and add this tag line as well Home Hero
+### 1. Copy logo to project
 
-Your Trusted Service Experts
+- Copy uploaded logo to `src/assets/logo.png`
 
-## Files to Change
+### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
 
-### 1. Logo Asset
+- Displays the logo image (32–40px height) + "FixItNow" text beside it
+- Centered horizontally in the header area
+- Used consistently across Home, Services, Bookings, Messages, and Profile screens
+- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
 
-- Copy uploaded image `user-uploads://file_00000000ca4c720898681a4c79d95820.png` to `src/assets/logo.png` (replaces current)
-- Copy to `public/favicon.png`, `public/icons/icon-192.png`, `public/icons/icon-512.png` for PWA/favicon
+### 3. Add `BrandHeader` to all main screens
 
-### 2. `src/components/layout/BrandHeader.tsx`
+- `**Index.tsx**` — add above `LocationBar`
+- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
+- `**Bookings.tsx**` — add at top
+- `**Messages.tsx**` — add at top
+- `**Profile.tsx**` — add at top
 
-- Change alt text to "Home Hero logo"
-- Replace `Fix<span>It</span>Now` with `Home<span> Hero</span>` (accent span in orange/primary)
+### 4. PWA icons
 
-### 3. `src/pages/Auth.tsx`
+- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
+- Update favicon reference
 
-- Line 172: Change `FixNow` → `Home Hero`
-- Line 173: Update tagline to "Your trusted home services platform" (already correct, keep as-is)
+### Files
 
-### 4. `index.html`
-
-- Title: `Home Hero – Book Home Services Instantly`
-- Meta author: `Home Hero`
-- OG/Twitter titles and descriptions updated
-- Theme color: change from `#1a5c5c` to `#1e3a5f` (deep blue)
-
-### 5. `public/manifest.json`
-
-- `name`: `Home Hero – Home Services`
-- `short_name`: `HomeHero`
-- `background_color` and `theme_color`: update to `#1e3a5f`
-
-### 6. `supabase/functions/notify-provider-approval/index.ts`
-
-- Replace all 6 occurrences of "FixNow" with "Home Hero"
-- Update email header color from `#F97316` to match new brand (keep orange `#F97316` as accent -- fits the uploaded logo)
-- Update `from` field: `Home Hero <onboarding@resend.dev>`
-- Update subject: `Provider Account Approved – Home Hero`
-
-### 7. Theme colors (`src/index.css`)
-
-- Update `--primary` HSL values to deep blue (e.g., `210 55% 25%`)
-- Add/update accent to bright orange
-- This cascades to buttons, links, and active states throughout the app
-
-### 8. `tailwind.config.ts`
-
-- No structural changes needed (colors reference CSS variables)
-
-### 9. `.lovable/plan.md`
-
-- Update branding references from FixItNow/FixNow to Home Hero
-
-## No structural/component changes needed
-
-All screens already use `BrandHeader` -- updating the component and logo asset propagates everywhere automatically (Home, Services, Bookings, Messages, Profile, Admin, Provider Dashboard).
+- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
+- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
+- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
