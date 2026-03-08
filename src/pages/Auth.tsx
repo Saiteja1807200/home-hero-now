@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Wrench, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
+import logo from "@/assets/logo.png";
 import {
   InputOTP,
   InputOTPGroup,
@@ -164,11 +165,18 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 relative">
+      <button
+        type="button"
+        onClick={() => navigate("/")}
+        className="absolute top-4 left-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <Home className="h-4 w-4" />
+        Home
+      </button>
+
       <div className="mb-8 flex flex-col items-center gap-2">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
-          <Wrench className="h-7 w-7 text-primary-foreground" />
-        </div>
+        <img src={logo} alt="Home Hero logo" className="h-16 w-16 rounded-2xl object-contain" />
         <h1 className="font-display text-2xl font-bold text-foreground">Home Hero</h1>
         <p className="text-sm text-muted-foreground">Your Trusted Service Experts</p>
       </div>
@@ -222,7 +230,7 @@ export default function Auth() {
                 <Label htmlFor="identifier">Email or Mobile Number</Label>
                 <Input
                   id="identifier"
-                  placeholder="you@example.com or 9876543210"
+                  placeholder="you@example.com or mobile number"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   required
@@ -233,7 +241,7 @@ export default function Auth() {
                       ? "📧 We'll send an OTP to your email"
                       : inputType === "phone"
                       ? "📱 We'll send an OTP via SMS"
-                      : "Enter a valid email or 10+ digit phone number"}
+                      : "Enter a valid email or 10+ digit mobile number"}
                   </p>
                 )}
               </div>
