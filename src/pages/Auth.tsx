@@ -147,7 +147,11 @@ export default function Auth() {
         toast({ title: "Verification failed", description: error.message, variant: "destructive" });
       } else {
         toast({ title: "Welcome!", description: "You're signed in." });
-        navigate("/");
+        if (isSignUp && userType === "provider") {
+          navigate("/become-provider");
+        } else {
+          navigate("/");
+        }
       }
     } finally {
       setIsSubmitting(false);
