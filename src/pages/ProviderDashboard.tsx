@@ -127,6 +127,7 @@ export default function ProviderDashboard() {
           scheduled_date: b.scheduled_date,
           scheduled_time: b.scheduled_time,
           notes: b.notes,
+          customer_id: b.customer_id,
           customer_name: customerName,
           service_name: serviceName,
           base_price: basePrice,
