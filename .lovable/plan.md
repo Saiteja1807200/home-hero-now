@@ -1,40 +1,33 @@
+# UI Branding Update — Add Logo + "fixitnow" Header
 
+## Changes
 
-## Enhance Provider Approval/Rejection Email Notifications
+### 1. Copy logo to project
 
-### Current State
-The `notify-provider-approval` edge function already sends an approval email via Resend when the admin approves a provider. However, **no email is sent on rejection**, and the email could include more context (service category, coverage area).
+- Copy uploaded logo to `src/assets/logo.png`
 
-### Plan
+### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
 
-#### 1. Update Edge Function: `notify-provider-approval` → handle both approval and rejection
+- Displays the logo image (32–40px height) + "FixItNow" text beside it
+- Centered horizontally in the header area
+- Used consistently across Home, Services, Bookings, Messages, and Profile screens
+- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
 
-- Accept a new `status` field in the request body (`"approved"` or `"rejected"`)
-- Fetch provider's service category name (join `provider_services` → `service_categories`) and coverage area for richer email content
-- **Approval email**: Current professional template enhanced with the provider's registered service category and coverage area
-- **Rejection email**: A respectful, professional template explaining the application was not approved, encouraging them to re-apply or contact support
+### 3. Add `BrandHeader` to all main screens
 
-#### 2. Update `AdminDashboard.tsx`
+- `**Index.tsx**` — add above `LocationBar`
+- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
+- `**Bookings.tsx**` — add at top
+- `**Messages.tsx**` — add at top
+- `**Profile.tsx**` — add at top
 
-- Call `notify-provider-approval` for **both** approve and reject actions, passing `{ provider_user_id, status }` in the body
+### 4. PWA icons
 
-#### 3. Email Templates
+- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
+- Update favicon reference
 
-**Approval email** (enhanced):
-- Subject: "Congratulations! Your Provider Account is Approved – Home Hero"
-- Body: Personalized greeting, confirmation of approval, their service category and coverage area, CTA to Provider Dashboard, support contact info
+### Files
 
-**Rejection email** (new):
-- Subject: "Application Update – Home Hero"
-- Body: Respectful tone, explanation that the application wasn't approved at this time, encouragement to update their profile and re-apply, support contact info
-
-### Files Changed
-
-| File | Change |
-|------|--------|
-| `supabase/functions/notify-provider-approval/index.ts` | Handle `status` param, add rejection email template, enhance approval template |
-| `src/pages/AdminDashboard.tsx` | Pass `status` to the edge function for both approve and reject |
-
-### No Database Changes Required
-All needed data (profiles, provider_services, service_categories) is already accessible via the service role key in the edge function.
-
+- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
+- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
+- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`

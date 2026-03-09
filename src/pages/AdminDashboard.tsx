@@ -58,15 +58,13 @@ export default function AdminDashboard() {
         .eq("id", id);
       if (error) throw error;
 
-      // Send approval notification email
-      if (status === "approved") {
-        const { data: sessionData } = await supabase.auth.getSession();
-        const token = sessionData?.session?.access_token;
-        await supabase.functions.invoke("notify-provider-approval", {
-          body: { provider_user_id: userId },
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
-      }
+      // Send approval/rejection notification email
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      await supabase.functions.invoke("notify-provider-approval", {
+        body: { provider_user_id: userId, status },
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
     },
     onSuccess: (_, { status }) => {
       queryClient.invalidateQueries({ queryKey: ["pending-providers"] });
