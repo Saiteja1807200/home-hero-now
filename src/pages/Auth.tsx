@@ -218,7 +218,32 @@ export default function Auth() {
               }}
               className="space-y-4"
             >
-              {isSignUp && (
+            {isSignUp && (
+              <>
+                <div className="space-y-2">
+                  <Label>I want to</Label>
+                  <div className="flex rounded-lg border border-border overflow-hidden">
+                    <button
+                      type="button"
+                      className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                        userType === "customer" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                      }`}
+                      onClick={() => setUserType("customer")}
+                    >
+                      Book Services
+                    </button>
+                    <button
+                      type="button"
+                      className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                        userType === "provider" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                      }`}
+                      onClick={() => setUserType("provider")}
+                    >
+                      Offer Services
+                    </button>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="full-name">Full Name</Label>
                   <Input
@@ -229,7 +254,8 @@ export default function Auth() {
                     required={isSignUp}
                   />
                 </div>
-              )}
+              </>
+            )}
 
               <div className="space-y-2">
                 <Label htmlFor="identifier">Email or Mobile Number</Label>
