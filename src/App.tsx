@@ -12,6 +12,7 @@ import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
 import Bookings from "./pages/Bookings";
 import Messages from "./pages/Messages";
+import Conversation from "./pages/Conversation";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import SavedAddresses from "./pages/SavedAddresses";
@@ -39,6 +40,7 @@ const App = () => (
                 <Route path="/services/:categoryId" element={<ServiceDetail />} />
                 <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
                 <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                <Route path="/messages/:conversationId" element={<ProtectedRoute><Conversation /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
                 <Route path="/saved-addresses" element={<ProtectedRoute><SavedAddresses /></ProtectedRoute>} />

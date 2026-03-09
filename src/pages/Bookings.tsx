@@ -1,5 +1,6 @@
-import { CalendarDays, X } from "lucide-react";
+import { CalendarDays, X, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,6 +41,46 @@ interface BookingRow {
 export default function Bookings() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const handleMessage = async (booking: BookingRow) => {
+    // Check if conversation already exists for this booking
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("booking_id", booking.id)
+      .maybeSingle();
+
+    if (existing) {
+      navigate(`/messages/${existing.id}`);
+      return;
+    }
+
+    // Look up provider_id from the booking to get the service_providers row id
+    const { data: bookingRow } = await supabase
+      .from("bookings")
+      .select("provider_id")
+      .eq("id", booking.id)
+      .maybeSingle();
+
+    if (!bookingRow) return;
+
+    const { data: conv, error } = await supabase
+      .from("conversations")
+      .insert({
+        booking_id: booking.id,
+        customer_id: user!.id,
+        provider_id: bookingRow.provider_id,
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      console.error("Failed to create conversation", error);
+      return;
+    }
+    navigate(`/messages/${conv.id}`);
+  };
 
   const handleCancel = async (bookingId: string) => {
     const { error } = await supabase
@@ -170,6 +211,17 @@ export default function Bookings() {
                     ₹{b.base_price}
                   </span>
                 </div>
+                {b.status !== "cancelled" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 w-full"
+                    onClick={() => handleMessage(b)}
+                  >
+                    <MessageCircle size={14} className="mr-1" />
+                    Message Provider
+                  </Button>
+                )}
                 {b.status === "requested" && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
