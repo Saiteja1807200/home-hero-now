@@ -1,33 +1,24 @@
-# UI Branding Update — Add Logo + "fixitnow" Header
 
-## Changes
 
-### 1. Copy logo to project
+## Fix Unread Badge: Mark Messages as Read
 
-- Copy uploaded logo to `src/assets/logo.png`
+### Problem
+1. Messages are never marked as read (`read_at` stays null), so the unread badge never decreases.
+2. The unread count logic in `useUnreadCount` is correct (counts messages where `read_at IS NULL` and `sender_id != me`), but nothing ever sets `read_at`.
 
-### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
+### Plan
 
-- Displays the logo image (32–40px height) + "FixItNow" text beside it
-- Centered horizontally in the header area
-- Used consistently across Home, Services, Bookings, Messages, and Profile screens
-- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
+#### 1. Mark messages as read when opening a conversation (`src/pages/Conversation.tsx`)
+- Add a `useEffect` that runs when `messages` data loads (and on realtime updates).
+- It calls `supabase.from("messages").update({ read_at: new Date().toISOString() })` for all messages in the current conversation where `sender_id != user.id` and `read_at IS NULL`.
+- After marking, invalidate the unread count by triggering a re-fetch (the realtime subscription on `useUnreadCount` will handle this automatically since it listens to all `messages` changes).
 
-### 3. Add `BrandHeader` to all main screens
+#### 2. No database changes needed
+The `messages` table already has a `read_at` column and an UPDATE RLS policy ("Participants can mark messages read") that allows conversation participants to update messages.
 
-- `**Index.tsx**` — add above `LocationBar`
-- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
-- `**Bookings.tsx**` — add at top
-- `**Messages.tsx**` — add at top
-- `**Profile.tsx**` — add at top
+### Files Changed
 
-### 4. PWA icons
+| File | Change |
+|------|--------|
+| `src/pages/Conversation.tsx` | Add `useEffect` to mark incoming messages as read when the conversation is open |
 
-- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
-- Update favicon reference
-
-### Files
-
-- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
-- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
-- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
