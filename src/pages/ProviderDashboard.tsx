@@ -357,7 +357,7 @@ export default function ProviderDashboard() {
             ) : (
               activeBookings.map((b) => (
                 <BookingCard key={b.id} booking={b}>
-                  <div className="mt-3">
+                  <div className="mt-3 space-y-1">
                     {b.status === "accepted" && (
                       <Button size="sm" className="w-full" onClick={() => updateBookingStatus(b.id, "on_the_way")}>
                         <Navigation size={14} className="mr-1" /> Start Travel
@@ -373,6 +373,9 @@ export default function ProviderDashboard() {
                         <CheckCircle2 size={14} className="mr-1" /> Complete Service
                       </Button>
                     )}
+                    <Button size="sm" variant="ghost" className="w-full" onClick={() => handleMessage(b)}>
+                      <MessageCircle size={14} className="mr-1" /> Message
+                    </Button>
                   </div>
                 </BookingCard>
               ))
