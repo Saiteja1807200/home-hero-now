@@ -119,6 +119,23 @@ export default function Conversation() {
     };
   }, [conversationId, queryClient]);
 
+  // Mark incoming messages as read
+  useEffect(() => {
+    if (!messages || !user || !conversationId) return;
+    const unread = messages.filter(
+      (m) => m.sender_id !== user.id && !(m as any).read_at
+    );
+    if (unread.length === 0) return;
+
+    supabase
+      .from("messages")
+      .update({ read_at: new Date().toISOString() })
+      .eq("conversation_id", conversationId)
+      .neq("sender_id", user.id)
+      .is("read_at", null)
+      .then();
+  }, [messages, user, conversationId]);
+
   // Auto-scroll on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
