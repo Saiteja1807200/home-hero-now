@@ -59,7 +59,7 @@ export default function Settings() {
 
       if (res.error) throw res.error;
       await supabase.auth.signOut();
-      navigate("/auth");
+      navigate("/account-deleted");
       toast({ title: "Account deleted" });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
