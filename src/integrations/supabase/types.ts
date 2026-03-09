@@ -573,6 +573,14 @@ export type Database = {
       }
     }
     Functions: {
+      get_customer_profile: {
+        Args: { customer_user_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+        }[]
+      }
       get_provider_profile: {
         Args: { provider_user_id: string }
         Returns: {
