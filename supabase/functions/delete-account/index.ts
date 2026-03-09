@@ -33,22 +33,25 @@ Deno.serve(async (req) => {
       .from("service_providers")
       .select("id")
       .eq("user_id", userId);
-    const providerIds = (providers || []).map((p) => p.id);
+    const providerIds = (providers || []).map((p: any) => p.id);
+
+    // --- Delete personal data (keep bookings & conversations for platform records) ---
+
+    // Delete messages sent by this user
+    await adminClient.from("messages").delete().eq("sender_id", userId);
+
+    // Delete reviews written by this user
+    await adminClient.from("reviews").delete().eq("customer_id", userId);
+
+    // Delete reviews about user's providers
+    if (providerIds.length > 0) {
+      await adminClient.from("reviews").delete().in("provider_id", providerIds);
+    }
 
     // Delete provider_services for user's providers
     if (providerIds.length > 0) {
       await adminClient.from("provider_services").delete().in("provider_id", providerIds);
     }
-
-    // Delete reviews written by or about user's providers
-    await adminClient.from("reviews").delete().eq("customer_id", userId);
-    if (providerIds.length > 0) {
-      await adminClient.from("reviews").delete().in("provider_id", providerIds);
-    }
-
-    // Nullify bookings references (archive, don't delete)
-    // bookings.customer_id and bookings.provider_id are NOT NULL, so we skip nullifying
-    // Instead we just proceed — the FK references service_providers.id not profiles.id
 
     // Delete service_providers
     if (providerIds.length > 0) {
@@ -60,6 +63,16 @@ Deno.serve(async (req) => {
     await adminClient.from("system_logs").delete().eq("user_id", userId);
     await adminClient.from("addresses").delete().eq("user_id", userId);
 
+    // Clean up storage buckets
+    const buckets = ["profile-photos", "portfolio-images", "verification-documents"];
+    for (const bucket of buckets) {
+      const { data: files } = await adminClient.storage.from(bucket).list(userId);
+      if (files && files.length > 0) {
+        const paths = files.map((f: any) => `${userId}/${f.name}`);
+        await adminClient.storage.from(bucket).remove(paths);
+      }
+    }
+
     // Delete profile
     await adminClient.from("profiles").delete().eq("id", userId);
 
@@ -70,7 +83,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err) {
+  } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
