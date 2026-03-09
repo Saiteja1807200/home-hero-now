@@ -19,6 +19,7 @@ import {
   Play,
   Check,
   X,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -36,6 +37,7 @@ interface DashboardBooking {
   scheduled_date: string;
   scheduled_time: string;
   notes: string | null;
+  customer_id: string;
   customer_name: string;
   service_name: string;
   base_price: number;
@@ -125,6 +127,7 @@ export default function ProviderDashboard() {
           scheduled_date: b.scheduled_date,
           scheduled_time: b.scheduled_time,
           notes: b.notes,
+          customer_id: b.customer_id,
           customer_name: customerName,
           service_name: serviceName,
           base_price: basePrice,
@@ -172,6 +175,38 @@ export default function ProviderDashboard() {
       queryClient.invalidateQueries({ queryKey: ["my-provider"] });
     }
     setTogglingOnline(false);
+  };
+
+  const handleMessage = async (booking: DashboardBooking) => {
+    if (!provider) return;
+    // Check if conversation exists for this booking
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("booking_id", booking.id)
+      .maybeSingle();
+
+    if (existing) {
+      navigate(`/messages/${existing.id}`);
+      return;
+    }
+
+    // Create conversation
+    const { data: conv, error } = await supabase
+      .from("conversations")
+      .insert({
+        booking_id: booking.id,
+        customer_id: booking.customer_id,
+        provider_id: provider.id,
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      toast.error("Failed to start conversation");
+      return;
+    }
+    navigate(`/messages/${conv.id}`);
   };
 
   const updateBookingStatus = async (bookingId: string, newStatus: BookingStatus) => {
@@ -302,6 +337,14 @@ export default function ProviderDashboard() {
                       <X size={14} className="mr-1" /> Decline
                     </Button>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-full mt-1"
+                    onClick={() => handleMessage(b)}
+                  >
+                    <MessageCircle size={14} className="mr-1" /> Message
+                  </Button>
                 </BookingCard>
               ))
             )}
@@ -314,7 +357,7 @@ export default function ProviderDashboard() {
             ) : (
               activeBookings.map((b) => (
                 <BookingCard key={b.id} booking={b}>
-                  <div className="mt-3">
+                  <div className="mt-3 space-y-1">
                     {b.status === "accepted" && (
                       <Button size="sm" className="w-full" onClick={() => updateBookingStatus(b.id, "on_the_way")}>
                         <Navigation size={14} className="mr-1" /> Start Travel
@@ -330,6 +373,9 @@ export default function ProviderDashboard() {
                         <CheckCircle2 size={14} className="mr-1" /> Complete Service
                       </Button>
                     )}
+                    <Button size="sm" variant="ghost" className="w-full" onClick={() => handleMessage(b)}>
+                      <MessageCircle size={14} className="mr-1" /> Message
+                    </Button>
                   </div>
                 </BookingCard>
               ))
@@ -342,7 +388,11 @@ export default function ProviderDashboard() {
               <EmptyState icon={CheckCircle2} message="No completed jobs yet" />
             ) : (
               completedBookings.map((b) => (
-                <BookingCard key={b.id} booking={b} />
+                <BookingCard key={b.id} booking={b}>
+                  <Button size="sm" variant="ghost" className="w-full mt-3" onClick={() => handleMessage(b)}>
+                    <MessageCircle size={14} className="mr-1" /> Message
+                  </Button>
+                </BookingCard>
               ))
             )}
           </TabsContent>
