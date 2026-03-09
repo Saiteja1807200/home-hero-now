@@ -337,6 +337,14 @@ export default function ProviderDashboard() {
                       <X size={14} className="mr-1" /> Decline
                     </Button>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-full mt-1"
+                    onClick={() => handleMessage(b)}
+                  >
+                    <MessageCircle size={14} className="mr-1" /> Message
+                  </Button>
                 </BookingCard>
               ))
             )}
