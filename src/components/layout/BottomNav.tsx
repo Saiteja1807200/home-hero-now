@@ -2,6 +2,7 @@ import { Home, Search, CalendarDays, MessageCircle, User } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useUnreadCount } from "@/hooks/useUnreadCount";
 
 const NAV_ITEMS = [
   { to: "/", icon: Home, label: "Home" },
@@ -13,12 +14,14 @@ const NAV_ITEMS = [
 
 export default function BottomNav() {
   const location = useLocation();
+  const unreadCount = useUnreadCount();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-lg safe-bottom">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 pt-1">
         {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
           const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+          const showBadge = to === "/messages" && unreadCount > 0;
           return (
             <NavLink
               key={to}
@@ -34,6 +37,11 @@ export default function BottomNav() {
                     isActive ? "text-accent" : "text-muted-foreground"
                   )}
                 />
+                {showBadge && (
+                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
                 {isActive && (
                   <motion.div
                     layoutId="nav-dot"
