@@ -55,14 +55,14 @@ export default function Messages() {
             }
           }
         } else {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url")
-            .eq("id", c.customer_id)
-            .maybeSingle();
-          if (profile) {
-            otherName = profile.full_name || "Customer";
-            otherAvatar = profile.avatar_url || "";
+          // Provider viewing — use security definer RPC
+          const { data: profiles } = await supabase.rpc("get_customer_profile", {
+            customer_user_id: c.customer_id,
+          });
+          const p = profiles?.[0];
+          if (p) {
+            otherName = p.full_name || "Customer";
+            otherAvatar = p.avatar_url || "";
           }
         }
 
