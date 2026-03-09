@@ -175,6 +175,38 @@ export default function ProviderDashboard() {
     setTogglingOnline(false);
   };
 
+  const handleMessage = async (booking: DashboardBooking) => {
+    if (!provider) return;
+    // Check if conversation exists for this booking
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("booking_id", booking.id)
+      .maybeSingle();
+
+    if (existing) {
+      navigate(`/messages/${existing.id}`);
+      return;
+    }
+
+    // Create conversation
+    const { data: conv, error } = await supabase
+      .from("conversations")
+      .insert({
+        booking_id: booking.id,
+        customer_id: booking.customer_id,
+        provider_id: provider.id,
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      toast.error("Failed to start conversation");
+      return;
+    }
+    navigate(`/messages/${conv.id}`);
+  };
+
   const updateBookingStatus = async (bookingId: string, newStatus: BookingStatus) => {
     const { error } = await supabase
       .from("bookings")
