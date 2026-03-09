@@ -388,7 +388,11 @@ export default function ProviderDashboard() {
               <EmptyState icon={CheckCircle2} message="No completed jobs yet" />
             ) : (
               completedBookings.map((b) => (
-                <BookingCard key={b.id} booking={b} />
+                <BookingCard key={b.id} booking={b}>
+                  <Button size="sm" variant="ghost" className="w-full mt-3" onClick={() => handleMessage(b)}>
+                    <MessageCircle size={14} className="mr-1" /> Message
+                  </Button>
+                </BookingCard>
               ))
             )}
           </TabsContent>
