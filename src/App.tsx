@@ -21,6 +21,7 @@ import Auth from "./pages/Auth";
 import BecomeProvider from "./pages/BecomeProvider";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AccountDeleted from "./pages/AccountDeleted";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               </Route>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/account-deleted" element={<AccountDeleted />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

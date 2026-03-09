@@ -1,24 +1,33 @@
+# UI Branding Update — Add Logo + "fixitnow" Header
 
+## Changes
 
-## Add Account Deactivated Confirmation Page
+### 1. Copy logo to project
 
-### Plan
+- Copy uploaded logo to `src/assets/logo.png`
 
-1. **Create `src/pages/AccountDeleted.tsx`** — A standalone page with a clean, centered layout showing:
-   - A checkmark or shield icon
-   - "Your account has been deactivated" heading
-   - Brief message: "Your personal data has been removed. Booking and conversation history has been archived for platform records."
-   - A "Return to Home" button linking to `/auth`
+### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
 
-2. **Update `src/pages/Settings.tsx`** — Change `navigate("/auth")` to `navigate("/account-deleted")` after successful deletion.
+- Displays the logo image (32–40px height) + "FixItNow" text beside it
+- Centered horizontally in the header area
+- Used consistently across Home, Services, Bookings, Messages, and Profile screens
+- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
 
-3. **Update `src/App.tsx`** — Add route `/account-deleted` pointing to the new page (outside `MobileLayout` and `ProtectedRoute` since the user is logged out).
+### 3. Add `BrandHeader` to all main screens
 
-### Files Changed
+- `**Index.tsx**` — add above `LocationBar`
+- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
+- `**Bookings.tsx**` — add at top
+- `**Messages.tsx**` — add at top
+- `**Profile.tsx**` — add at top
 
-| File | Change |
-|------|--------|
-| `src/pages/AccountDeleted.tsx` | New confirmation page with icon, message, and CTA |
-| `src/pages/Settings.tsx` | Redirect to `/account-deleted` instead of `/auth` |
-| `src/App.tsx` | Add `/account-deleted` route |
+### 4. PWA icons
 
+- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
+- Update favicon reference
+
+### Files
+
+- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
+- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
+- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
