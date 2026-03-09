@@ -1,26 +1,33 @@
+# UI Branding Update — Add Logo + "fixitnow" Header
 
+## Changes
 
-## Add Provider Login Option to Auth Page
+### 1. Copy logo to project
 
-Currently the Sign Up page only has a single flow — no way to distinguish between a Customer and a Service Provider during signup/signin. The memory confirms there should be a Customer/Provider choice during signup.
+- Copy uploaded logo to `src/assets/logo.png`
 
-### Plan
+### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
 
-**Modify `src/pages/Auth.tsx`:**
+- Displays the logo image (32–40px height) + "FixItNow" text beside it
+- Centered horizontally in the header area
+- Used consistently across Home, Services, Bookings, Messages, and Profile screens
+- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
 
-1. **Add a role selector** (Customer / Service Provider toggle) visible during **Sign Up** mode, placed below the Sign Up/Sign In toggle.
-   - Use two styled buttons or a radio-style selector.
-   - Default to "Customer".
+### 3. Add `BrandHeader` to all main screens
 
-2. **Store selected role in state** (`userType: "customer" | "provider"`).
+- `**Index.tsx**` — add above `LocationBar`
+- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
+- `**Bookings.tsx**` — add at top
+- `**Messages.tsx**` — add at top
+- `**Profile.tsx**` — add at top
 
-3. **Pass role context in OTP metadata**: Include `user_type` in the `data` option of `signInWithOtp` so it's available after verification.
+### 4. PWA icons
 
-4. **Post-verification redirect logic**:
-   - If `userType === "provider"` → navigate to `/become-provider` after successful OTP verification.
-   - If `userType === "customer"` → navigate to `/` (current behavior).
+- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
+- Update favicon reference
 
-5. **Sign In mode**: Hide the role selector (existing users already have their role determined). Keep current behavior — redirect to `/`.
+### Files
 
-This approach avoids creating separate login pages and keeps the flow unified while letting new providers self-identify during signup.
-
+- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
+- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
+- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`

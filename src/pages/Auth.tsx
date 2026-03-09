@@ -46,6 +46,7 @@ export default function Auth() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [isSignUp, setIsSignUp] = useState(true);
+  const [userType, setUserType] = useState<"customer" | "provider">("customer");
 
   useEffect(() => {
     setInputType(detectInputType(identifier));
@@ -84,7 +85,7 @@ export default function Auth() {
           email: identifier.trim(),
           options: {
             shouldCreateUser: isSignUp,
-            data: isSignUp ? { full_name: fullName.trim() } : undefined,
+            data: isSignUp ? { full_name: fullName.trim(), user_type: userType } : undefined,
           },
         });
         error = res.error;
@@ -94,7 +95,7 @@ export default function Auth() {
           phone,
           options: {
             shouldCreateUser: isSignUp,
-            data: isSignUp ? { full_name: fullName.trim() } : undefined,
+            data: isSignUp ? { full_name: fullName.trim(), user_type: userType } : undefined,
           },
         });
         error = res.error;
@@ -146,7 +147,11 @@ export default function Auth() {
         toast({ title: "Verification failed", description: error.message, variant: "destructive" });
       } else {
         toast({ title: "Welcome!", description: "You're signed in." });
-        navigate("/");
+        if (isSignUp && userType === "provider") {
+          navigate("/become-provider");
+        } else {
+          navigate("/");
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -213,7 +218,32 @@ export default function Auth() {
               }}
               className="space-y-4"
             >
-              {isSignUp && (
+            {isSignUp && (
+              <>
+                <div className="space-y-2">
+                  <Label>I want to</Label>
+                  <div className="flex rounded-lg border border-border overflow-hidden">
+                    <button
+                      type="button"
+                      className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                        userType === "customer" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                      }`}
+                      onClick={() => setUserType("customer")}
+                    >
+                      Book Services
+                    </button>
+                    <button
+                      type="button"
+                      className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                        userType === "provider" ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                      }`}
+                      onClick={() => setUserType("provider")}
+                    >
+                      Offer Services
+                    </button>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="full-name">Full Name</Label>
                   <Input
@@ -224,7 +254,8 @@ export default function Auth() {
                     required={isSignUp}
                   />
                 </div>
-              )}
+              </>
+            )}
 
               <div className="space-y-2">
                 <Label htmlFor="identifier">Email or Mobile Number</Label>
