@@ -95,7 +95,7 @@ export default function Auth() {
           phone,
           options: {
             shouldCreateUser: isSignUp,
-            data: isSignUp ? { full_name: fullName.trim() } : undefined,
+            data: isSignUp ? { full_name: fullName.trim(), user_type: userType } : undefined,
           },
         });
         error = res.error;
