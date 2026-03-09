@@ -46,6 +46,7 @@ export default function Auth() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [isSignUp, setIsSignUp] = useState(true);
+  const [userType, setUserType] = useState<"customer" | "provider">("customer");
 
   useEffect(() => {
     setInputType(detectInputType(identifier));
