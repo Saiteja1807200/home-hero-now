@@ -211,6 +211,17 @@ export default function Bookings() {
                     ₹{b.base_price}
                   </span>
                 </div>
+                {b.status !== "cancelled" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 w-full"
+                    onClick={() => handleMessage(b)}
+                  >
+                    <MessageCircle size={14} className="mr-1" />
+                    Message Provider
+                  </Button>
+                )}
                 {b.status === "requested" && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
