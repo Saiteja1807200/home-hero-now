@@ -21,6 +21,7 @@ import Auth from "./pages/Auth";
 import BecomeProvider from "./pages/BecomeProvider";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AccountDeleted from "./pages/AccountDeleted";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
