@@ -37,6 +37,7 @@ interface DashboardBooking {
   scheduled_date: string;
   scheduled_time: string;
   notes: string | null;
+  customer_id: string;
   customer_name: string;
   service_name: string;
   base_price: number;
