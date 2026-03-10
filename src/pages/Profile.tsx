@@ -41,7 +41,7 @@ export default function Profile() {
   const { data: isAdmin } = useQuery({
     queryKey: ["is-admin", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.rpc("is_admin");
+      const { data } = await (supabase.rpc as any)("is_admin");
       return data === true;
     },
     enabled: !!user,

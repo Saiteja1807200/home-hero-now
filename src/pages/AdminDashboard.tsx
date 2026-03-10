@@ -15,7 +15,7 @@ export default function AdminDashboard() {
   const { data: isAdmin, isLoading: checkingRole } = useQuery({
     queryKey: ["is-admin", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.rpc("is_admin");
+      const { data } = await (supabase.rpc as any)("is_admin");
       return data === true;
     },
     enabled: !!user,
