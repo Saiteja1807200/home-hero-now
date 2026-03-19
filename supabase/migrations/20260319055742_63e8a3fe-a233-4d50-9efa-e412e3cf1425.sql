@@ -1,0 +1,1 @@
+UPDATE public.service_providers SET status = 'approved', is_online = true WHERE id IN ('44183f21-7456-4e1d-ba67-4f4a69bb0193', 'b634b890-f30f-4d09-b83d-c60703346cf2');
