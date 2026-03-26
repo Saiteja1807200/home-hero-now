@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY")!;
+    const brevoApiKey = Deno.env.get("BREVO_API_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
     // Verify calling user is admin
