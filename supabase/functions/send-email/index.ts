@@ -17,8 +17,8 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) throw new Error("RESEND_API_KEY not configured");
+    const brevoApiKey = Deno.env.get("BREVO_API_KEY");
+    if (!brevoApiKey) throw new Error("BREVO_API_KEY not configured");
 
     // Verify caller is authenticated
     const userClient = createClient(supabaseUrl, anonKey, {
@@ -38,27 +38,29 @@ Deno.serve(async (req) => {
     if (!to) throw new Error("'to' email is required");
     if (!subject) throw new Error("'subject' is required");
 
-    const emailRes = await fetch("https://api.resend.com/emails", {
+    const recipients = Array.isArray(to) ? to.map((e: string) => ({ email: e })) : [{ email: to }];
+
+    const emailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${resendApiKey}`,
+        "api-key": brevoApiKey,
       },
       body: JSON.stringify({
-        from: "Home Hero <onboarding@resend.dev>",
-        to: Array.isArray(to) ? to : [to],
+        sender: { name: "Home Hero", email: "noreply@home-herohub.lovable.app" },
+        to: recipients,
         subject,
-        html: emailHtml,
+        htmlContent: emailHtml,
       }),
     });
 
     const emailData = await emailRes.json();
     if (!emailRes.ok) {
-      console.error("Resend error:", emailData);
+      console.error("Brevo error:", emailData);
       throw new Error(`Email send failed: ${JSON.stringify(emailData)}`);
     }
 
-    return new Response(JSON.stringify({ success: true, id: emailData.id }), {
+    return new Response(JSON.stringify({ success: true, messageId: emailData.messageId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
