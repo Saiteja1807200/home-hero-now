@@ -155,23 +155,23 @@ Deno.serve(async (req) => {
           </p>
         </div>`;
 
-      const emailRes = await fetch("https://api.resend.com/emails", {
+      const emailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${resendApiKey}`,
+          "api-key": brevoApiKey,
         },
         body: JSON.stringify({
-          from: "Home Hero <onboarding@resend.dev>",
-          to: [profile.email],
+          sender: { name: "Home Hero", email: "noreply@home-herohub.lovable.app" },
+          to: [{ email: profile.email }],
           subject,
-          html: emailHtml,
+          htmlContent: emailHtml,
         }),
       });
 
       const emailData = await emailRes.json();
       if (!emailRes.ok) {
-        console.error("Resend error:", emailData);
+        console.error("Brevo error:", emailData);
         results.email = `Failed: ${JSON.stringify(emailData)}`;
       } else {
         results.email = "sent";
