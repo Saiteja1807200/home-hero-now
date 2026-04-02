@@ -1,33 +1,41 @@
-# UI Branding Update — Add Logo + "fixitnow" Header
 
-## Changes
 
-### 1. Copy logo to project
+## SEO Visibility Plan for Home Hero
 
-- Copy uploaded logo to `src/assets/logo.png`
+Your `robots.txt` is already in place and correctly allows all crawlers. Here's what else we should do to maximize Google visibility:
 
-### 2. Create a `BrandHeader` component (`src/components/layout/BrandHeader.tsx`)
+### What's already good
+- `robots.txt` with `Allow: /` for all user agents — done
+- Open Graph and Twitter Card meta tags — done
+- Good title and description — done
 
-- Displays the logo image (32–40px height) + "FixItNow" text beside it
-- Centered horizontally in the header area
-- Used consistently across Home, Services, Bookings, Messages, and Profile screens
-- Adapts to light/dark backgrounds (logo is green/teal gradient, works on both)
+### Changes to implement
 
-### 3. Add `BrandHeader` to all main screens
+**1. Add a sitemap to `robots.txt`**
+Add a `Sitemap:` directive pointing to `/sitemap.xml` so search engines discover all pages.
 
-- `**Index.tsx**` — add above `LocationBar`
-- `**Services.tsx**` — replace the plain `<h1>` with `BrandHeader` above it
-- `**Bookings.tsx**` — add at top
-- `**Messages.tsx**` — add at top
-- `**Profile.tsx**` — add at top
+**2. Create `public/sitemap.xml`**
+A static sitemap listing all public routes (`/`, `/services`, `/auth`, etc.) with your published domain `https://home-herohub.lovable.app`.
 
-### 4. PWA icons
+**3. Add `og:url` and canonical link to `index.html`**
+- `<link rel="canonical" href="https://home-herohub.lovable.app/" />` — prevents duplicate content issues
+- `<meta property="og:url" content="https://home-herohub.lovable.app/" />` — completes OG tags
 
-- Copy the logo to `public/icons/icon-192.png` and `public/icons/icon-512.png` for the manifest
-- Update favicon reference
+**4. Add structured data (JSON-LD) to `index.html`**
+Add a `LocalBusiness` / `WebApplication` schema so Google shows rich results (service type, description, etc.).
 
-### Files
+**5. Add keyword-rich meta tags**
+Add `<meta name="keywords">` with relevant terms like "home services, plumber near me, electrician booking, AC repair, cleaning services".
 
-- **New**: `src/assets/logo.png`, `src/components/layout/BrandHeader.tsx`
-- **Edit**: `Index.tsx`, `Services.tsx`, `Bookings.tsx`, `Messages.tsx`, `Profile.tsx`
-- **Copy to public**: `public/icons/icon-192.png`, `public/icons/icon-512.png`
+### Beyond code changes (manual steps)
+- **Submit sitemap to Google Search Console** at `https://search.google.com/search-console` — add your published URL and submit the sitemap
+- **Connect a custom domain** — `lovable.app` subdomains work but a branded domain (e.g., `homehero.in`) ranks better
+- **Add your business to Google Business Profile** if you serve a specific area
+
+### Files changed
+| File | Change |
+|------|--------|
+| `public/robots.txt` | Add `Sitemap:` directive |
+| `public/sitemap.xml` | New — lists all public routes |
+| `index.html` | Add canonical, og:url, JSON-LD structured data, keywords meta |
+
